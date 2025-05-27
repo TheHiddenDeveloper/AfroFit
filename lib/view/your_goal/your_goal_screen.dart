@@ -1,4 +1,5 @@
-import 'package:carousel_slider/carousel_slider.dart' as cs;
+import 'package:carousel_slider/carousel_slider.dart' as carousel_slider;
+import 'package:fitnessapp/routes.dart';
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/login/login_screen.dart';
 import 'package:fitnessapp/view/welcome/welcome_screen.dart';
@@ -36,7 +37,9 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
       "image": "assets/images/goal_3.png"
     }
   ];
-  cs.CarouselController carouselController = cs.CarouselController();
+
+  final carousel_slider.CarouselSliderController carouselController =
+      carousel_slider.CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,8 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
         child: Stack(
           children: [
             Center(
-              child: cs.CarouselSlider(
+              child: carousel_slider.CarouselSlider(
+                carouselController: carouselController,
                 items: pageList
                     .map((obj) => Container(
                           decoration: BoxDecoration(
@@ -105,8 +109,7 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
                           ),
                         ))
                     .toList(),
-                carouselController: carouselController,
-                options: cs.CarouselOptions(
+                options: carousel_slider.CarouselOptions(
                   autoPlay: false,
                   enlargeCenterPage: true,
                   viewportFraction: 0.7,
