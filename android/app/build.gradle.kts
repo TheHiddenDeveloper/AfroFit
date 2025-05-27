@@ -25,7 +25,7 @@ var flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "
 
 
 android {
-    namespace = "com.hypeteq.fitnessapp"
+    namespace = "com.umat.fitnessapp"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -45,7 +45,7 @@ android {
     defaultConfig {
         // TODO: Change this to your unique application ID.
         // You can also set this in the local.properties file with flutter.applicationId.
-        applicationId = "com.hypeteq.fitnessapp"
+        applicationId = "com.umat.fitnessapp"
         minSdkVersion (23)
         targetSdkVersion (33)
         versionCode = flutter.versionCode

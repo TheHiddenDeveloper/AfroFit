@@ -1,4 +1,4 @@
-package com.hypeteq.fitnessapp
+package com.umat.fitnessapp
 
 import io.flutter.embedding.android.FlutterActivity
 
