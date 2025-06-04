@@ -1,7 +1,9 @@
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/on_boarding/widgets/pager_widget.dart';
+import 'package:fitnessapp/utils/permissions_handler.dart';
 import 'package:fitnessapp/view/signup/signup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:fitnessapp/utils/permissions_handler.dart'; // ⬅️ Import your permissions helper
 
 class OnBoardingScreen extends StatefulWidget {
   static String routeName = "/OnBoardingScreen";
@@ -72,31 +74,38 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   height: 70,
                   child: CircularProgressIndicator(
                     color: AppColors.primaryColor1,
-                    value: (selectedIndex+1) / 4,
+                    value: (selectedIndex + 1) / 4,
                     strokeWidth: 3,
                   ),
                 ),
                 Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
+                  margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(35),
-                      color: AppColors.primaryColor1),
+                    borderRadius: BorderRadius.circular(35),
+                    color: AppColors.primaryColor1,
+                  ),
                   child: IconButton(
                     icon: const Icon(
                       Icons.navigate_next,
                       color: AppColors.whiteColor,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (selectedIndex < 3) {
-                        selectedIndex = selectedIndex + 1;
-                        pageController.animateToPage(selectedIndex,
-                            duration: const Duration(milliseconds: 700),
-                            curve: Curves.easeInSine);
-                      }
-                      else{
+                        setState(() {
+                          selectedIndex += 1;
+                        });
+                        pageController.animateToPage(
+                          selectedIndex,
+                          duration: const Duration(milliseconds: 700),
+                          curve: Curves.easeInSine,
+                        );
+                      } else {
+                        // ✅ Request permissions before signup
+                        await AppPermissions.requestAllPermissions();
+
+                        // ✅ Navigate to signup screen after permission request
                         Navigator.pushNamed(context, SignupScreen.routeName);
                       }
                     },
