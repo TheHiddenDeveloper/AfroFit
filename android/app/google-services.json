@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "634624413320",
+    "project_id": "afrofit-faa7b",
+    "storage_bucket": "afrofit-faa7b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634624413320:android:0ee54056cb5670ebaf993d",
+        "android_client_info": {
+          "package_name": "com.umat.fitnessapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "634624413320-g7b1dnk36bmqbkshrjllmdo8e520re60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umat.fitnessapp",
+            "certificate_hash": "ff8ec252ca4a7e53ff01f5cac9f7565a988a0540"
+          }
+        },
+        {
+          "client_id": "634624413320-jebrd9gdrcdqf1a98ls907r6b2qhlqlt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLF2C5p-qUQOgPJLoQlXeYTfxurIy44no"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "634624413320-jebrd9gdrcdqf1a98ls907r6b2qhlqlt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

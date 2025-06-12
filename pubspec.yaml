@@ -46,6 +46,11 @@ dependencies:
   calendar_agenda:
     path: dev_lib/calendar_agenda/
   permission_handler: ^12.0.0+1
+  firebase_core: ^2.24.0
+  firebase_auth: ^4.15.0
+  google_sign_in: ^6.1.4
+  flutter_facebook_auth: ^6.0.4
+  get: ^4.7.2
 
 
 dev_dependencies:

@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:fitnessapp/routes.dart';
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/dashboard/dashboard_screen.dart';
@@ -9,7 +10,9 @@ import 'package:fitnessapp/view/welcome/welcome_screen.dart';
 import 'package:fitnessapp/view/your_goal/your_goal_screen.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
