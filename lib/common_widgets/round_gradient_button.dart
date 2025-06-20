@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-
 import '../utils/app_colors.dart';
 
 class RoundGradientButton extends StatelessWidget {
   final String title;
-  final Function() onPressed;
-  const RoundGradientButton({Key? key, required this.title, required this.onPressed}) : super(key: key);
+  final VoidCallback? onPressed;
+
+  const RoundGradientButton({
+    Key? key,
+    required this.title,
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,19 +17,29 @@ class RoundGradientButton extends StatelessWidget {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: AppColors.primaryG,begin: Alignment.centerLeft,end: Alignment.centerRight),
+          gradient: LinearGradient(
+            colors: AppColors.primaryG,
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
           borderRadius: BorderRadius.circular(25),
-          boxShadow: const [BoxShadow(color: Colors.black26,blurRadius: 2,offset: Offset(0,2))]
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 2,
+              offset: Offset(0, 2),
+            )
+          ],
         ),
         child: MaterialButton(
           minWidth: double.maxFinite,
           height: 50,
-          onPressed:onPressed,
+          onPressed: onPressed,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           textColor: AppColors.primaryColor1,
           child: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: AppColors.whiteColor,
               fontFamily: "Poppins",

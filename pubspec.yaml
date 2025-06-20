@@ -52,6 +52,7 @@ dependencies:
   flutter_facebook_auth: ^6.0.4
   get: ^4.7.2
   shared_preferences: ^2.2.0
+  cloud_firestore: ^4.17.5
 
 
 dev_dependencies:

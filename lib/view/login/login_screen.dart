@@ -1,11 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitnessapp/services/auth_service.dart';
-import 'package:fitnessapp/view/dashboard/dashboard_screen.dart';
 import 'package:fitnessapp/view/profile/complete_profile_screen.dart';
 import 'package:fitnessapp/view/signup/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
@@ -18,23 +16,27 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = AuthService();
+
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   bool passwordVisible = false;
   bool isLoading = false;
+  bool hasNavigated = false;
 
   void _login() async {
     setState(() => isLoading = true);
+
     try {
       await authService.signInWithEmail(
         emailController.text.trim(),
         passwordController.text.trim(),
       );
-      // Success handled in snapshot
+      // Navigation will be handled in StreamBuilder
     } catch (e) {
       Get.snackbar("Login Failed", e.toString(), snackPosition: SnackPosition.BOTTOM);
     }
+
     setState(() => isLoading = false);
   }
 
@@ -43,9 +45,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active && snapshot.data != null) {
+        if (snapshot.connectionState == ConnectionState.active &&
+            snapshot.data != null &&
+            !hasNavigated) {
+          hasNavigated = true;
           Future.microtask(() {
-            Get.snackbar("Success", "Successfully Logged In", snackPosition: SnackPosition.BOTTOM);
+            Get.snackbar("Success", "Logged in Successfully", snackPosition: SnackPosition.BOTTOM);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (_) => const CompleteProfileScreen()),
@@ -77,7 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: isLoading ? null : _login,
-                  child: isLoading ? const CircularProgressIndicator() : const Text('Login'),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Login'),
                 ),
                 const SizedBox(height: 20),
                 Row(children: const [Expanded(child: Divider()), Text(" OR "), Expanded(child: Divider())]),
@@ -85,13 +92,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton.icon(
                   icon: Image.asset('assets/icons/google_icon.png', height: 24),
                   label: const Text("Continue with Google"),
-                  onPressed: () => authService.signInWithGoogle(),
+                  onPressed: () async {
+                    try {
+                      final user = await authService.signInWithGoogle();
+                      if (user != null) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CompleteProfileScreen()),
+                        );
+                      }
+                    } catch (e) {
+                      Get.snackbar("Google Sign-In Failed", e.toString(), snackPosition: SnackPosition.BOTTOM);
+                    }
+                  },
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
                   icon: Image.asset('assets/icons/facebook_icon.png', height: 24),
                   label: const Text("Continue with Facebook"),
-                  onPressed: () => authService.signInWithFacebook(),
+                  onPressed: () async {
+                    try {
+                      final user = await authService.signInWithFacebook();
+                      if (user != null) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const CompleteProfileScreen()),
+                        );
+                      }
+                    } catch (e) {
+                      Get.snackbar("Facebook Sign-In Failed", e.toString(), snackPosition: SnackPosition.BOTTOM);
+                    }
+                  },
                 ),
                 const Spacer(),
                 TextButton(

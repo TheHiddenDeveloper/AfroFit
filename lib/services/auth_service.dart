@@ -41,11 +41,11 @@ class AuthService {
 
       if (googleUser == null) return null; // User canceled login
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
       );
 
       final result = await _auth.signInWithCredential(credential);
