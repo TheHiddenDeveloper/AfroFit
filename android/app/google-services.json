@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "634624413320-g7b1dnk36bmqbkshrjllmdo8e520re60.apps.googleusercontent.com",
+          "client_id": "634624413320-ge45bj402luiisjl758omrk9mtf68hmp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.umat.fitnessapp",
-            "certificate_hash": "ff8ec252ca4a7e53ff01f5cac9f7565a988a0540"
+            "certificate_hash": "fe614a67879024e7d3cc129e14295277c63949a1"
           }
         },
         {

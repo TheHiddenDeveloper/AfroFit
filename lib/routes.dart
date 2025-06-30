@@ -1,4 +1,5 @@
-
+import 'package:fitnessapp/view/splash/splash_screen.dart';
+import 'package:get/get.dart';
 import 'package:fitnessapp/view/activity_tracker/activity_tracker_screen.dart';
 import 'package:fitnessapp/view/dashboard/dashboard_screen.dart';
 import 'package:fitnessapp/view/finish_workout/finish_workout_screen.dart';
@@ -11,19 +12,19 @@ import 'package:fitnessapp/view/signup/signup_screen.dart';
 import 'package:fitnessapp/view/welcome/welcome_screen.dart';
 import 'package:fitnessapp/view/workout_schedule_view/workout_schedule_view.dart';
 import 'package:fitnessapp/view/your_goal/your_goal_screen.dart';
-import 'package:flutter/cupertino.dart';
 
-final Map<String, WidgetBuilder> routes = {
-  OnBoardingScreen.routeName: (context) => const OnBoardingScreen(),
-  LoginScreen.routeName: (context) => const LoginScreen(),
-  StartScreen.routeName: (context) => const StartScreen(),
-  SignupScreen.routeName: (context) => const SignupScreen(),
-  CompleteProfileScreen.routeName: (context) => const CompleteProfileScreen(),
-  YourGoalScreen.routeName: (context) => const YourGoalScreen(),
-  WelcomeScreen.routeName: (context) => const WelcomeScreen(),
-  DashboardScreen.routeName: (context) => const DashboardScreen(),
-  FinishWorkoutScreen.routeName: (context) => const FinishWorkoutScreen(),
-  NotificationScreen.routeName: (context) => const NotificationScreen(),
-  ActivityTrackerScreen.routeName: (context) => const ActivityTrackerScreen(),
-  WorkoutScheduleView.routeName: (context) => const WorkoutScheduleView(),
-};
+final List<GetPage> appRoutes = [
+  GetPage(name: SplashScreen.routeName, page: () => const SplashScreen()),
+  GetPage(name: OnBoardingScreen.routeName, page: () => const OnBoardingScreen()),
+  GetPage(name: LoginScreen.routeName, page: () =>  LoginScreen()),
+  GetPage(name: StartScreen.routeName, page: () => const StartScreen()),
+  GetPage(name: SignupScreen.routeName, page: () => const SignupScreen()),
+  GetPage(name: CompleteProfileScreen.routeName, page: () => const CompleteProfileScreen()),
+  GetPage(name: YourGoalScreen.routeName, page: () => const YourGoalScreen()),
+  GetPage(name: WelcomeScreen.routeName, page: () => const WelcomeScreen()),
+  GetPage(name: DashboardScreen.routeName, page: () => const DashboardScreen()),
+  GetPage(name: FinishWorkoutScreen.routeName, page: () => const FinishWorkoutScreen()),
+  GetPage(name: NotificationScreen.routeName, page: () => const NotificationScreen()),
+  GetPage(name: ActivityTrackerScreen.routeName, page: () => const ActivityTrackerScreen()),
+  GetPage(name: WorkoutScheduleView.routeName, page: () => const WorkoutScheduleView()),
+];

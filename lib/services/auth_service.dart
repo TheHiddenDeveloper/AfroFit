@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitnessapp/view/profile/complete_profile_screen.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
@@ -35,23 +37,35 @@ class AuthService {
   }
 
   // Sign in with Google
-  Future<User?> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-      if (googleUser == null) return null; // User canceled login
+      if (googleUser == null) {
+        Get.snackbar("Cancelled", "Google sign-in was cancelled.",
+            snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
 
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      final result = await _auth.signInWithCredential(credential);
-      return result.user;
+      final UserCredential result =
+          await _auth.signInWithCredential(credential);
+
+      if (result.user != null) {
+        Get.snackbar("Success", "Signed in with Google",
+            snackPosition: SnackPosition.BOTTOM);
+        Get.offAllNamed(CompleteProfileScreen.routeName);
+      }
     } catch (e) {
-      throw Exception("Google sign-in failed: ${e.toString()}");
+      Get.snackbar("Error", "Google sign-in failed: ${e.toString()}",
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 

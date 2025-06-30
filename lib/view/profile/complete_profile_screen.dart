@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitnessapp/services/database_service.dart';
 import 'package:fitnessapp/utils/app_colors.dart';
+import 'package:fitnessapp/view/dashboard/dashboard_screen.dart';
 import 'package:fitnessapp/view/your_goal/your_goal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -50,7 +51,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           snackPosition: SnackPosition.BOTTOM);
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, YourGoalScreen.routeName);
+        Get.toNamed(DashboardScreen.routeName);
       }
     } catch (e) {
       Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);

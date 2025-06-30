@@ -1,60 +1,21 @@
-// 🔁 Updated Login Screen with full functionality
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fitnessapp/services/auth_service.dart';
-import 'package:fitnessapp/view/profile/complete_profile_screen.dart';
-import 'package:fitnessapp/view/signup/signup_screen.dart';
+import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../common_widgets/round_gradient_button.dart';
 import '../../common_widgets/round_textfield.dart';
-import '../../utils/app_colors.dart';
+import '../../controllers/login_controller.dart';
+import '../signup/signup_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   static String routeName = "/LoginScreen";
+
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final AuthService authService = AuthService();
-  bool isLoading = false;
-
-  void _login() async {
-    setState(() => isLoading = true);
-    try {
-      await authService.signInWithEmail(
-        emailController.text.trim(),
-        passwordController.text.trim(),
-      );
-      Get.snackbar("Success", "Successfully Logged In");
-      Navigator.pushReplacementNamed(context, CompleteProfileScreen.routeName);
-    } catch (e) {
-      Get.snackbar("Login Failed", e.toString());
-    }
-    setState(() => isLoading = false);
-  }
-
-  void _socialLogin(Future<User?> Function() method) async {
-    setState(() => isLoading = true);
-    try {
-      final user = await method();
-      if (user != null) {
-        Get.snackbar("Success", "Successfully Logged In");
-        Navigator.pushReplacementNamed(context, CompleteProfileScreen.routeName);
-      }
-    } catch (e) {
-      Get.snackbar("Social Login Failed", e.toString());
-    }
-    setState(() => isLoading = false);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Get.put(LoginController());
     var media = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: SafeArea(
@@ -62,44 +23,45 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
           child: Column(
             children: [
-              SizedBox(
-                width: media.width,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: media.width * 0.03),
-                    const Text("Hey there,", style: TextStyle(color: AppColors.blackColor, fontSize: 16)),
-                    const SizedBox(height: 5),
-                    const Text("Welcome Back", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
+              SizedBox(height: media.width * 0.03),
+              const Text("Hey there,", style: TextStyle(color: AppColors.blackColor, fontSize: 16)),
+              SizedBox(height: media.width * 0.01),
+              const Text("Welcome Back", style: TextStyle(color: AppColors.blackColor, fontSize: 20, fontWeight: FontWeight.w700)),
+
+              SizedBox(height: media.width * 0.05),
               RoundTextField(
-                  textEditingController: emailController,
-                  hintText: "Email",
-                  icon: "assets/icons/message_icon.png",
-                  textInputType: TextInputType.emailAddress),
-              const SizedBox(height: 20),
-              RoundTextField(
-                textEditingController: passwordController,
-                hintText: "Password",
-                icon: "assets/icons/lock_icon.png",
-                textInputType: TextInputType.text,
-                isObscureText: true,
+                hintText: "Email",
+                icon: "assets/icons/message_icon.png",
+                textInputType: TextInputType.emailAddress,
+                textEditingController: controller.emailController,
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: media.width * 0.05),
+              Obx(() => RoundTextField(
+                    hintText: "Password",
+                    icon: "assets/icons/lock_icon.png",
+                    textInputType: TextInputType.text,
+                    isObscureText: !controller.isPasswordVisible.value,
+                    textEditingController: controller.passwordController,
+                    rightIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+                        color: AppColors.grayColor,
+                      ),
+                      onPressed: controller.togglePasswordVisibility,
+                    ),
+                  )),
+              SizedBox(height: media.width * 0.03),
               const Text("Forgot your password?", style: TextStyle(color: AppColors.grayColor, fontSize: 10)),
               const Spacer(),
-              RoundGradientButton(
-                title: isLoading ? "Please wait..." : "Login",
-                onPressed: isLoading ? null : _login,
-              ),
-              const SizedBox(height: 10),
+              Obx(() => RoundGradientButton(
+                    title: "Login",
+                    onPressed: controller.isLoading.value ? null : controller.login,
+                  )),
+              SizedBox(height: media.width * 0.01),
               Row(
                 children: [
                   Expanded(child: Divider(color: AppColors.grayColor.withOpacity(0.5))),
-                  const Text("  Or  "),
+                  const Text("  Or  ", style: TextStyle(color: AppColors.grayColor, fontSize: 12)),
                   Expanded(child: Divider(color: AppColors.grayColor.withOpacity(0.5))),
                 ],
               ),
@@ -107,22 +69,25 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(
-                    onTap: () => _socialLogin(authService.signInWithGoogle),
-                    child: socialIcon("assets/icons/google_icon.png"),
-                  ),
+                  socialIcon("assets/icons/google_icon.png", () {
+                    // TODO: Implement Google login
+                  }),
                   const SizedBox(width: 30),
-                  GestureDetector(
-                    onTap: () => _socialLogin(authService.signInWithFacebook),
-                    child: socialIcon("assets/icons/facebook_icon.png"),
-                  ),
+                  socialIcon("assets/icons/facebook_icon.png", () {
+                    // TODO: Implement Facebook login
+                  }),
                 ],
               ),
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () => Navigator.pushNamed(context, SignupScreen.routeName),
-                child: const Text("Don’t have an account yet? Register"),
-              ),
+                  onPressed: () {
+                    Get.toNamed(SignupScreen.routeName);
+                  },
+                  child: RichText(
+                      text: TextSpan(style: TextStyle(color: AppColors.blackColor, fontSize: 14), children: [
+                    const TextSpan(text: "Don’t have an account yet? "),
+                    TextSpan(text: "Register", style: TextStyle(color: AppColors.secondaryColor1, fontWeight: FontWeight.w500)),
+                  ])))
             ],
           ),
         ),
@@ -130,16 +95,19 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget socialIcon(String assetPath) {
-    return Container(
-      width: 50,
-      height: 50,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primaryColor1.withOpacity(0.5), width: 1),
+  Widget socialIcon(String iconPath, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 50,
+        height: 50,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.primaryColor1.withOpacity(0.5), width: 1),
+        ),
+        child: Image.asset(iconPath, width: 20, height: 20),
       ),
-      child: Image.asset(assetPath, width: 20, height: 20),
     );
   }
 }

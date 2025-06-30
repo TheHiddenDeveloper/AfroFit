@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fitnessapp/services/sharedPref_service.dart';
 
 class SplashScreen extends StatefulWidget {
+  static const routeName = '/SplashScreen';
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
