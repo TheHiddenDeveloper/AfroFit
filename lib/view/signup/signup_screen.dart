@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitnessapp/services/sharedPref_service.dart';
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/login/login_screen.dart';
 import 'package:fitnessapp/view/profile/complete_profile_screen.dart';
+import 'package:fitnessapp/view/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -36,9 +38,24 @@ class _SignupScreenState extends State<SignupScreen> {
 
     setState(() => isLoading = true);
     try {
-      await authService.signUpWithEmail(emailCtrl.text.trim(), passwordCtrl.text.trim());
-      Get.offAllNamed(CompleteProfileScreen.routeName);
-      Get.snackbar("Success", "Registration Successful", snackPosition: SnackPosition.BOTTOM);
+      final User? user = await authService.signUpWithEmail(
+        emailCtrl.text.trim(),
+        passwordCtrl.text.trim(),
+      );
+
+      if (user != null) {
+        // Save first name to shared prefs
+        await SharedPrefsService().saveUserName(
+          firstName: firstNameCtrl.text.trim(),
+          lastName: lastNameCtrl.text.trim()
+        );
+
+        Get.snackbar("Success", "Registration Successful",
+            snackPosition: SnackPosition.BOTTOM);
+
+        // Navigate to CompleteProfileScreen as per roadmap
+        Get.offAllNamed(CompleteProfileScreen.routeName);
+      }
     } catch (e) {
       Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
     }
@@ -57,33 +74,43 @@ class _SignupScreenState extends State<SignupScreen> {
               const SizedBox(height: 15),
               const Text("Hey there,", style: TextStyle(color: AppColors.blackColor, fontSize: 16)),
               const Text("Create an Account", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-              
-              const SizedBox(height: 15),
-
-              RoundTextField(hintText: "First Name", 
-              icon: "assets/icons/profile_icon.png", textInputType: TextInputType.name, 
-              textEditingController: firstNameCtrl
-              ),
-              const SizedBox(height: 15),
-              
-              RoundTextField(hintText: "Last Name", 
-              icon: "assets/icons/profile_icon.png", 
-              textInputType: TextInputType.name, 
-              textEditingController: lastNameCtrl
-              ),
 
               const SizedBox(height: 15),
-              RoundTextField(hintText: "Email", 
-              icon: "assets/icons/message_icon.png", 
-              textInputType: TextInputType.emailAddress, 
-              textEditingController: emailCtrl),
+              RoundTextField(
+                  hintText: "First Name",
+                  icon: "assets/icons/profile_icon.png",
+                  textInputType: TextInputType.name,
+                  textEditingController: firstNameCtrl),
               const SizedBox(height: 15),
-              RoundTextField(hintText: "Password", icon: "assets/icons/lock_icon.png", textInputType: TextInputType.text, isObscureText: true, textEditingController: passwordCtrl),
+
+              RoundTextField(
+                  hintText: "Last Name",
+                  icon: "assets/icons/profile_icon.png",
+                  textInputType: TextInputType.name,
+                  textEditingController: lastNameCtrl),
+
               const SizedBox(height: 15),
+              RoundTextField(
+                  hintText: "Email",
+                  icon: "assets/icons/message_icon.png",
+                  textInputType: TextInputType.emailAddress,
+                  textEditingController: emailCtrl),
+              const SizedBox(height: 15),
+              RoundTextField(
+                  hintText: "Password",
+                  icon: "assets/icons/lock_icon.png",
+                  textInputType: TextInputType.text,
+                  isObscureText: true,
+                  textEditingController: passwordCtrl),
+              const SizedBox(height: 15),
+
               Row(
                 children: [
                   Checkbox(value: isCheck, onChanged: (v) => setState(() => isCheck = v ?? false)),
-                  Expanded(child: Text("By continuing you accept our Privacy Policy and Terms of Use", style: TextStyle(fontSize: 10))),
+                  const Expanded(
+                    child: Text("By continuing you accept our Privacy Policy and Terms of Use",
+                        style: TextStyle(fontSize: 10)),
+                  ),
                 ],
               ),
               const SizedBox(height: 30),
@@ -95,19 +122,27 @@ class _SignupScreenState extends State<SignupScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  GestureDetector(onTap: () => authService.signInWithGoogle(), child: Image.asset("assets/icons/google_icon.png", width: 50)),
+                  GestureDetector(
+                      onTap: () => authService.signInWithGoogle(),
+                      child: Image.asset("assets/icons/google_icon.png", width: 50)),
                   const SizedBox(width: 20),
-                  GestureDetector(onTap: () => authService.signInWithFacebook(), child: Image.asset("assets/icons/facebook_icon.png", width: 50)),
+                  GestureDetector(
+                      onTap: () => authService.signInWithFacebook(),
+                      child: Image.asset("assets/icons/facebook_icon.png", width: 50)),
                 ],
               ),
               TextButton(
                 onPressed: () => Get.toNamed(LoginScreen.routeName),
                 child: RichText(
                   text: TextSpan(
-                    style: TextStyle(color: AppColors.blackColor, fontSize: 14),
-                    children: [
-                      const TextSpan(text: "Already have an account? "),
-                      TextSpan(text: "Login", style: TextStyle(color: AppColors.secondaryColor1, fontWeight: FontWeight.bold)),
+                    style: const TextStyle(color: AppColors.blackColor, fontSize: 14),
+                    children: const [
+                      TextSpan(text: "Already have an account? "),
+                      TextSpan(
+                          text: "Login",
+                          style: TextStyle(
+                              color: AppColors.secondaryColor1,
+                              fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),

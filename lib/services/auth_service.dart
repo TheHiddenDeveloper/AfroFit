@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitnessapp/services/sharedPref_service.dart';
 import 'package:fitnessapp/view/profile/complete_profile_screen.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -37,37 +38,52 @@ class AuthService {
   }
 
   // Sign in with Google
-  Future<void> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+ Future<void> signInWithGoogle() async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-      if (googleUser == null) {
-        Get.snackbar("Cancelled", "Google sign-in was cancelled.",
-            snackPosition: SnackPosition.BOTTOM);
-        return;
-      }
+    if (googleUser == null) {
+      Get.snackbar("Cancelled", "Google sign-in was cancelled.",
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final UserCredential result =
+        await _auth.signInWithCredential(credential);
+
+    if (result.user != null) {
+      // ✅ Split the full name into first and last names
+      final displayName = googleUser.displayName ?? "";
+      final names = displayName.split(" ");
+      final firstName = names.isNotEmpty ? names.first : "User";
+      final lastName = names.length > 1 ? names.sublist(1).join(" ") : "";
+
+      // ✅ Store names in SharedPreferences
+      await SharedPrefsService().saveUserName(
+        firstName: firstName,
+        lastName: lastName,
       );
 
-      final UserCredential result =
-          await _auth.signInWithCredential(credential);
-
-      if (result.user != null) {
-        Get.snackbar("Success", "Signed in with Google",
-            snackPosition: SnackPosition.BOTTOM);
-        Get.offAllNamed(CompleteProfileScreen.routeName);
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Google sign-in failed: ${e.toString()}",
+      Get.snackbar("Success", "Signed in with Google",
           snackPosition: SnackPosition.BOTTOM);
+
+      // ✅ Forward to complete profile screen
+      Get.offAllNamed(CompleteProfileScreen.routeName);
     }
+  } catch (e) {
+    Get.snackbar("Error", "Google sign-in failed: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM);
   }
+}
+
 
   // Sign in with Facebook
   Future<User?> signInWithFacebook() async {

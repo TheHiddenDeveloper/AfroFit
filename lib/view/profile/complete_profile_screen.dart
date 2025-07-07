@@ -2,13 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitnessapp/services/database_service.dart';
 import 'package:fitnessapp/utils/app_colors.dart';
-import 'package:fitnessapp/view/dashboard/dashboard_screen.dart';
 import 'package:fitnessapp/view/your_goal/your_goal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../common_widgets/round_gradient_button.dart';
 import '../../common_widgets/round_textfield.dart';
+
+enum HeightUnit { meters, feetInches }
+enum WeightUnit { kg, lbs }
 
 class CompleteProfileScreen extends StatefulWidget {
   static String routeName = "/CompleteProfileScreen";
@@ -24,6 +26,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final TextEditingController weightController = TextEditingController();
   final TextEditingController heightController = TextEditingController();
   String? selectedGender;
+
+  HeightUnit selectedHeightUnit = HeightUnit.meters;
+  WeightUnit selectedWeightUnit = WeightUnit.kg;
 
   bool isLoading = false;
 
@@ -43,15 +48,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       await dbService.saveUserProfile(
         gender: selectedGender!,
         dateOfBirth: dobController.text.trim(),
-        weight: weightController.text.trim(),
-        height: heightController.text.trim(),
+        weight:
+            "${weightController.text.trim()} ${selectedWeightUnit == WeightUnit.kg ? "kg" : "lbs"}",
+        height:
+            "${heightController.text.trim()} ${selectedHeightUnit == HeightUnit.meters ? "m" : "ft/in"}",
       );
 
       Get.snackbar("Success", "Profile Saved Successfully",
           snackPosition: SnackPosition.BOTTOM);
 
       if (mounted) {
-        Get.toNamed(DashboardScreen.routeName);
+        Get.toNamed(YourGoalScreen.routeName);
       }
     } catch (e) {
       Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
@@ -104,6 +111,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 25),
+                // Gender Dropdown
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.lightGrayColor,
@@ -153,6 +161,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
+                // DOB
                 RoundTextField(
                   hintText: "Date of Birth",
                   icon: "assets/icons/calendar_icon.png",
@@ -165,25 +174,65 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 15),
-                RoundTextField(
-                  hintText: "Your Weight",
-                  icon: "assets/icons/weight_icon.png",
-                  textInputType: TextInputType.number,
-                  textEditingController: weightController,
+                // Weight + unit
+                Row(
+                  children: [
+                    Expanded(
+                      child: RoundTextField(
+                        hintText: "Your Weight",
+                        icon: "assets/icons/weight_icon.png",
+                        textInputType: TextInputType.number,
+                        textEditingController: weightController,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    DropdownButton<WeightUnit>(
+                      value: selectedWeightUnit,
+                      items: WeightUnit.values.map((unit) {
+                        return DropdownMenuItem(
+                          value: unit,
+                          child: Text(unit == WeightUnit.kg ? "kg" : "lbs"),
+                        );
+                      }).toList(),
+                      onChanged: (unit) {
+                        setState(() => selectedWeightUnit = unit!);
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 15),
-                RoundTextField(
-                  hintText: "Your Height",
-                  icon: "assets/icons/swap_icon.png",
-                  textInputType: TextInputType.number,
-                  textEditingController: heightController,
+                // Height + unit
+                Row(
+                  children: [
+                    Expanded(
+                      child: RoundTextField(
+                        hintText: "Your Height",
+                        icon: "assets/icons/swap_icon.png",
+                        textInputType: TextInputType.number,
+                        textEditingController: heightController,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    DropdownButton<HeightUnit>(
+                      value: selectedHeightUnit,
+                      items: HeightUnit.values.map((unit) {
+                        return DropdownMenuItem(
+                          value: unit,
+                          child:
+                              Text(unit == HeightUnit.meters ? "m" : "ft/in"),
+                        );
+                      }).toList(),
+                      onChanged: (unit) {
+                        setState(() => selectedHeightUnit = unit!);
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 15),
                 RoundGradientButton(
                   title: isLoading ? "Saving..." : "Next >",
-                  onPressed: isLoading ? null : () => _submitProfile(),
-
-                )
+                  onPressed: isLoading ? null : _submitProfile,
+                ),
               ],
             ),
           ),
