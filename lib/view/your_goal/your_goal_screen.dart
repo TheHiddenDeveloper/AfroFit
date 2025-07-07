@@ -1,8 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:carousel_slider/carousel_controller.dart' hide CarouselController;
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/welcome/welcome_screen.dart';
-import 'package:flutter/material.dart' hide CarouselController;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../common_widgets/round_gradient_button.dart';
@@ -39,7 +38,8 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
     }
   ];
 
-  final CarouselController carouselController = CarouselController();
+  final CarouselSliderController carouselController =
+      CarouselSliderController();
   int currentIndex = 0;
   bool isSaving = false;
 
@@ -52,7 +52,8 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
       final dbService = DatabaseService();
       await dbService.saveUserGoal(goalTitle);
 
-      Get.snackbar("Success", "Goal saved", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Success", "Goal saved",
+          snackPosition: SnackPosition.BOTTOM);
       Get.offAllNamed(WelcomeScreen.routeName);
     } catch (e) {
       Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
@@ -105,7 +106,8 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
                           ),
                         ),
                         const SizedBox(height: 5),
-                        Container(width: 50, height: 1, color: AppColors.whiteColor),
+                        Container(
+                            width: 50, height: 1, color: AppColors.whiteColor),
                         const SizedBox(height: 8),
                         Text(
                           obj["subtitle"]!,
@@ -127,7 +129,8 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
                   enableInfiniteScroll: false,
                   initialPage: 0,
                   viewportFraction: 0.75,
-                  onPageChanged: (index, reason) => setState(() => currentIndex = index),
+                  onPageChanged: (index, reason) =>
+                      setState(() => currentIndex = index),
                 ),
               ),
             ),
