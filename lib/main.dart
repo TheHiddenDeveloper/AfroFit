@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:fitnessapp/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // 👈 Import GetX
 import 'package:fitnessapp/routes.dart';
@@ -8,6 +9,7 @@ import 'package:fitnessapp/view/splash/splash_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Get.put(UserController()); 
   runApp(const MyApp());
 }
 

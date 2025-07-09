@@ -4,7 +4,8 @@ import 'package:fitnessapp/view/activity/activity_screen.dart';
 import 'package:fitnessapp/view/progress/progress_photo_screen.dart';
 import 'package:fitnessapp/view/profile/user_profile.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:fitnessapp/routes.dart';
 import '../home/home_screen.dart';
 import 'package:fitnessapp/view/workout/workout_screen.dart';
 import 'package:fitnessapp/view/nutrition/nutrition_screen.dart';
@@ -80,7 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                Navigator.pushNamed(context, '/profile');
+               Get.offAllNamed(UserProfile.routeName);
               },
             ),
           ],

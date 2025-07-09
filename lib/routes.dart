@@ -1,3 +1,5 @@
+import 'package:fitnessapp/view/profile/edit_profile_screen.dart';
+import 'package:fitnessapp/view/profile/user_profile.dart';
 import 'package:fitnessapp/view/splash/splash_screen.dart';
 import 'package:get/get.dart';
 import 'package:fitnessapp/view/activity_tracker/activity_tracker_screen.dart';
@@ -27,4 +29,7 @@ final List<GetPage> appRoutes = [
   GetPage(name: NotificationScreen.routeName, page: () => const NotificationScreen()),
   GetPage(name: ActivityTrackerScreen.routeName, page: () => const ActivityTrackerScreen()),
   GetPage(name: WorkoutScheduleView.routeName, page: () => const WorkoutScheduleView()),
+  GetPage(name: EditProfileScreen.routeName, page: () => EditProfileScreen()),
+  GetPage(name: UserProfile.routeName, page: () => const UserProfile()),
+
 ];
