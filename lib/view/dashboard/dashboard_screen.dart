@@ -1,12 +1,14 @@
 import 'dart:io';
-
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/activity/activity_screen.dart';
-import 'package:fitnessapp/view/camera/camera_screen.dart';
+import 'package:fitnessapp/view/progress/progress_photo_screen.dart';
 import 'package:fitnessapp/view/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 
 import '../home/home_screen.dart';
+import 'package:fitnessapp/view/workout/workout_screen.dart';
+import 'package:fitnessapp/view/nutrition/nutrition_screen.dart';
+import 'package:fitnessapp/view/goals/goals_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   static String routeName = "/DashboardScreen";
@@ -27,144 +29,125 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const UserProfile()
   ];
 
+  void _openDrawer() {
+    Scaffold.of(context).openDrawer();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: InkWell(
-        onTap: () {},
-        child: SizedBox(
-          width: 70,
-          height: 70,
-          child: Container(
-            width: 65,
-            height: 65,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: AppColors.primaryG),
-                borderRadius: BorderRadius.circular(35),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 2)
-                ]),
-            child: const Icon(Icons.search_sharp,
-                color: AppColors.whiteColor, size: 32),
-          ),
-        ),
-      ),
-      body: IndexedStack(
-        index: selectTab,
-        children: _widgetOptions,
-      ),
-      bottomNavigationBar: BottomAppBar(
-        height: Platform.isIOS ? 70 : 65,
-        color: Colors.transparent,
-        padding: const EdgeInsets.all(0),
-        child: Container(
-          height: Platform.isIOS ? 70 : 65,
-          decoration: const BoxDecoration(
-              color: AppColors.whiteColor,
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 2,
-                    offset: Offset(0, -2))
-              ]),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TabButton(
-                  icon: "assets/icons/home_icon.png",
-                  selectIcon: "assets/icons/home_select_icon.png",
-                  isActive: selectTab == 0,
-                  onTap: () {
-                    if (mounted) {
-                      setState(() {
-                        selectTab = 0;
-                      });
-                    }
-                  }),
-              TabButton(
-                  icon: "assets/icons/activity_icon.png",
-                  selectIcon: "assets/icons/activity_select_icon.png",
-                  isActive: selectTab == 1,
-                  onTap: () {
-                    if (mounted) {
-                      setState(() {
-                        selectTab = 1;
-                      });
-                    }
-                  }),
-              const SizedBox(width: 30),
-              TabButton(
-                  icon: "assets/icons/camera_icon.png",
-                  selectIcon: "assets/icons/camera_select_icon.png",
-                  isActive: selectTab == 2,
-                  onTap: () {
-                    if (mounted) {
-                      setState(() {
-                        selectTab = 2;
-                      });
-                    }
-                  }),
-              TabButton(
-                  icon: "assets/icons/user_icon.png",
-                  selectIcon: "assets/icons/user_select_icon.png",
-                  isActive: selectTab == 3,
-                  onTap: () {
-                    if (mounted) {
-                      setState(() {
-                        selectTab = 3;
-                      });
-                    }
-                  }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class TabButton extends StatelessWidget {
-  final String icon;
-  final String selectIcon;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const TabButton(
-      {Key? key,
-      required this.icon,
-      required this.selectIcon,
-      required this.isActive,
-      required this.onTap})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            isActive ? selectIcon : icon,
-            width: 25,
-            height: 25,
-            fit: BoxFit.fitWidth,
-          ),
-          SizedBox(height: isActive ? 8 : 12),
-          Visibility(
-            visible: isActive,
-            child: Container(
-              width: 4,
-              height: 4,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: AppColors.secondaryG),
-                  borderRadius: BorderRadius.circular(2)),
+                gradient: LinearGradient(colors: AppColors.primaryG),
+              ),
+              child: const Text('Menu',
+                  style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
-          )
+            ListTile(
+              leading: const Icon(Icons.fitness_center),
+              title: const Text('Workout'),
+              onTap: () {
+                Navigator.pushNamed(context, '/workout');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.restaurant),
+              title: const Text('Nutrition'),
+              onTap: () {
+                Navigator.pushNamed(context, '/nutrition');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag),
+              title: const Text('Goals'),
+              onTap: () {
+                Navigator.pushNamed(context, '/goals');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Progress Photo'),
+              onTap: () {
+                Navigator.pushNamed(context, '/progress_photo');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+          ],
+        ),
+      ),
+      appBar: AppBar(
+        backgroundColor: AppColors.whiteColor,
+        elevation: 0,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.black),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.black),
+            onPressed: () {
+              // Navigate to notifications
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
         ],
       ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Recommendations Section
+          Text(
+            "Recommendations Based on Your Lifestyle",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.lightbulb_outline, color: Colors.orange),
+              title: Text("Stay hydrated! Drink at least 2L of water daily."),
+            ),
+          ),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.directions_run, color: Colors.blue),
+              title: Text("Try a 30-minute walk after meals."),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Tips Section
+          Text(
+            "Tips",
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.check_circle_outline, color: Colors.green),
+              title: Text("Set realistic goals and track your progress."),
+            ),
+          ),
+          // ...add more tips as needed...
+        ],
+      ),
+      // No bottomNavigationBar
     );
   }
 }
