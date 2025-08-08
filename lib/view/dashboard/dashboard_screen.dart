@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               leading: const Icon(Icons.restaurant),
               title: const Text('Nutrition'),
               onTap: () {
-                Navigator.pushNamed(context, '/nutrition');
+                Get.toNamed(NutritionScreen.routeName);
               },
             ),
             ListTile(

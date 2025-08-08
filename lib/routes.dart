@@ -14,6 +14,8 @@ import 'package:fitnessapp/view/signup/signup_screen.dart';
 import 'package:fitnessapp/view/welcome/welcome_screen.dart';
 import 'package:fitnessapp/view/workout_schedule_view/workout_schedule_view.dart';
 import 'package:fitnessapp/view/your_goal/your_goal_screen.dart';
+import 'package:fitnessapp/view/workout/workout_screen.dart';
+import 'package:fitnessapp/view/nutrition/nutrition_screen.dart';
 
 final List<GetPage> appRoutes = [
   GetPage(name: SplashScreen.routeName, page: () => const SplashScreen()),
@@ -31,5 +33,8 @@ final List<GetPage> appRoutes = [
   GetPage(name: WorkoutScheduleView.routeName, page: () => const WorkoutScheduleView()),
   GetPage(name: EditProfileScreen.routeName, page: () => EditProfileScreen()),
   GetPage(name: UserProfile.routeName, page: () => const UserProfile()),
+  GetPage(name: WorkoutScreen.routeName, page: () => const WorkoutScreen()),
+ 
+  GetPage(name: NutritionScreen.routeName, page: () => const NutritionScreen()),
 
 ];
