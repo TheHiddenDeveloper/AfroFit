@@ -4,8 +4,7 @@ import 'intermediate_workout_screen.dart';
 import 'advanced_workout_screen.dart';
 
 class WorkoutScreen extends StatelessWidget {
-  static const routeName = '/workout';
-
+  static const String routeName = '/workout';
   const WorkoutScreen({super.key});
 
   @override
@@ -14,7 +13,7 @@ class WorkoutScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Workout Levels"),
+          title: const Text("Workouts"),
           bottom: const TabBar(
             tabs: [
               Tab(text: "Beginner"),
