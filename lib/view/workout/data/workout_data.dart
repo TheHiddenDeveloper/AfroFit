@@ -28,11 +28,11 @@ final List<WorkoutStep> intermediateWorkout = [
   WorkoutStep(name: "Push-ups", image: "assets/images/push_ups.jpeg"),
   WorkoutStep(name: "Abdominal Crunches", image: "assets/images/crunches.jpg"),
   WorkoutStep(
-      name: "Russian Twists", image: "assets/images/russian_twists.png"),
+      name: "Russian Twists", image: "assets/images/russian_twists.jpeg"),
   WorkoutStep(
       name: "Rest",
       isRest: true,
-      image: "assets/images/rest.png"), // rest after 5
+      image: "assets/images/rest.jpeg"), // rest after 5
   WorkoutStep(name: "Squats", image: "assets/images/squats.jpeg"),
   WorkoutStep(
       name: "Tricep Dips on Chair", image: "assets/images/tricep_dips.jpeg"),
@@ -49,7 +49,7 @@ final List<WorkoutStep> intermediateWorkout = [
   WorkoutStep(
       name: "Side Plank (right)", image: "assets/images/side_plank.png"),
   WorkoutStep(
-      name: "Mountain Climbers", image: "assets/images/mountain_climbers.png"),
+      name: "Mountain Climbers", image: "assets/images/mountain_climber.png"),
   WorkoutStep(name: "Burpees", image: "assets/images/burpees.jpeg"),
 ];
 
@@ -62,8 +62,8 @@ final List<WorkoutStep> advancedWorkout = [
   WorkoutStep(
       name: "Rest",
       isRest: true,
-      image: "assets/images/rest.png"), // rest after 5
-  WorkoutStep(name: "Squats", image: "assets/images/squats.png"),
+      image: "assets/images/rest.jpeg"), // rest after 5
+  WorkoutStep(name: "Squats", image: "assets/images/squats.jpeg"),
   WorkoutStep(
       name: "Tricep Dips on Chair", image: "assets/images/tricep_dips.jpeg"),
   WorkoutStep(name: "Plank", image: "assets/images/plank.jpeg"),
@@ -84,13 +84,13 @@ final List<WorkoutStep> advancedWorkout = [
       isRest: true,
       image: "assets/images/rest.jpeg"), // rest after 15
   WorkoutStep(
-      name: "Mountain Climbers", image: "assets/images/mountain_climbers.png"),
+      name: "Mountain Climbers", image: "assets/images/mountain_climber.png"),
   WorkoutStep(name: "Burpees", image: "assets/images/burpees.jpeg"),
   WorkoutStep(name: "Leg Raises", image: "assets/images/leg_raises.jpeg"),
   WorkoutStep(
       name: "Bicycle Crunches", image: "assets/images/bicycle_crunch.png"),
   WorkoutStep(name: "Donkey Kicks", image: "assets/images/donkey_kicks.jpeg"),
   WorkoutStep(
-      name: "Russian Twists", image: "assets/images/russian_twists.png"),
-  WorkoutStep(name: "Superman", image: "assets/images/superman.png"),
+      name: "Russian Twists", image: "assets/images/russian_twists.jpeg"),
+  WorkoutStep(name: "Superman", image: "assets/images/superman.jpeg"),
 ];
