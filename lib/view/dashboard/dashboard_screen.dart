@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/activity/activity_screen.dart';
-import 'package:fitnessapp/view/progress/progress_photo_screen.dart';
+import 'package:fitnessapp/view/progress_tracker/progress_photo_screen.dart';
 import 'package:fitnessapp/view/profile/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(),
     const ActivityScreen(),
-    const CameraScreen(),
+    const ProgressPhotoScreen(),
     const UserProfile()
   ];
 
@@ -74,14 +74,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               leading: const Icon(Icons.photo_camera),
               title: const Text('Progress Photo'),
               onTap: () {
-                Navigator.pushNamed(context, '/progress_photo');
+                Get.toNamed(ProgressPhotoScreen.routeName);
               },
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-               Get.offAllNamed(UserProfile.routeName);
+                Get.offAllNamed(UserProfile.routeName);
               },
             ),
           ],
