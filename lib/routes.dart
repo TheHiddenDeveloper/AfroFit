@@ -17,6 +17,7 @@ import 'package:fitnessapp/view/your_goal/your_goal_screen.dart';
 import 'package:fitnessapp/view/workout/workout_screen.dart';
 import 'package:fitnessapp/view/nutrition/nutrition_screen.dart';
 import 'package:fitnessapp/view/progress_tracker/progress_photo_screen.dart';
+import 'package:fitnessapp/view/videos/video_screen.dart';
 
 final List<GetPage> appRoutes = [
   GetPage(name: SplashScreen.routeName, page: () => const SplashScreen()),
@@ -50,4 +51,5 @@ final List<GetPage> appRoutes = [
   GetPage(
       name: ProgressPhotoScreen.routeName,
       page: () => const ProgressPhotoScreen()),
+  GetPage(name: VideosScreen.routeName, page: () => const VideosScreen()),
 ];
