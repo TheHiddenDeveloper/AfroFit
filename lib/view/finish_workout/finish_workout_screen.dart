@@ -246,31 +246,6 @@ class _FinishWorkoutScreenState extends State<FinishWorkoutScreen>
                                   ),
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Exercise is king and nutrition is queen. "
-                                    "Combine the two and you will have a kingdom.",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: AppColors.grayColor,
-                                      fontSize: 15,
-                                      fontStyle: FontStyle.italic,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    "- Jack LaLanne",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: AppColors.midGrayColor,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
                           ],
                         ),

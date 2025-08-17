@@ -44,12 +44,13 @@ final List<GetPage> appRoutes = [
   GetPage(
       name: WorkoutScheduleView.routeName,
       page: () => const WorkoutScheduleView()),
-  GetPage(name: EditProfileScreen.routeName, page: () => EditProfileScreen()),
+  GetPage(
+      name: EditProfileScreen.routeName, page: () => const EditProfileScreen()),
   GetPage(name: UserProfile.routeName, page: () => const UserProfile()),
-  GetPage(name: WorkoutScreen.routeName, page: () => WorkoutScreen()),
+  GetPage(name: WorkoutScreen.routeName, page: () => const WorkoutScreen()),
   GetPage(name: NutritionScreen.routeName, page: () => const NutritionScreen()),
   GetPage(
       name: ProgressPhotoScreen.routeName,
       page: () => const ProgressPhotoScreen()),
-  GetPage(name: VideosScreen.routeName, page: () => const VideosScreen()),
+  GetPage(name: VideoScreen.routeName, page: () => const VideoScreen()),
 ];

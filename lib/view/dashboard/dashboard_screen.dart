@@ -3,6 +3,7 @@ import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:fitnessapp/view/activity/activity_screen.dart';
 import 'package:fitnessapp/view/progress_tracker/progress_photo_screen.dart';
 import 'package:fitnessapp/view/profile/user_profile.dart';
+import 'package:fitnessapp/view/videos/video_screen.dart' hide AppColors;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fitnessapp/routes.dart';
@@ -86,7 +87,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             leading: const Icon(Icons.video_library),
             title: const Text('Videos'),
             onTap: () {
-              Navigator.pushNamed(context, '/videos');
+              Get.toNamed(VideoScreen.routeName);
             },
           ),
           ListTile(

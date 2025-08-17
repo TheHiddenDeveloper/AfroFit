@@ -1,31 +1,53 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+
+class YouTubeVideo {
+  final String videoId;
+  final String title;
+  final String thumbnailUrl;
+  final String channelTitle;
+
+  YouTubeVideo({
+    required this.videoId,
+    required this.title,
+    required this.thumbnailUrl,
+    required this.channelTitle,
+  });
+
+  factory YouTubeVideo.fromJson(Map<String, dynamic> json) {
+    return YouTubeVideo(
+      videoId: json['id']['videoId'],
+      title: json['snippet']['title'],
+      thumbnailUrl: json['snippet']['thumbnails']['high']['url'],
+      channelTitle: json['snippet']['channelTitle'],
+    );
+  }
+}
 
 class YoutubeService {
-  final String apiKey = dotenv.env['YOUTUBE_API_KEY'] ?? '';
-  final String channelId = "UCXIJgqnII2ZOINSWNOGFThA"; // Replace with your workout channel ID
+  final String baseUrl = "https://www.googleapis.com/youtube/v3";
 
-  Future<List<Map<String, dynamic>>> fetchVideos() async {
-    final url = Uri.parse(
-      "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=$channelId&maxResults=10&order=date&type=video&key=$apiKey"
-    );
+  Future<List<Map<String, dynamic>>> fetchChannelVideos(
+      String channelId) async {
+    final apiKey = dotenv.env['YOUTUBE_API_KEY'];
+    final url =
+        "$baseUrl/search?part=snippet&channelId=$channelId&maxResults=10&order=date&type=video&key=$apiKey";
 
-    final response = await http.get(url);
+    final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      List<Map<String, dynamic>> videos = [];
-      for (var item in data['items']) {
-        videos.add({
-          'title': item['snippet']['title'],
-          'thumbnail': item['snippet']['thumbnails']['high']['url'],
-          'videoId': item['id']['videoId'],
-        });
-      }
-      return videos;
+      final videos = data['items'] as List;
+      return videos.map((video) {
+        return {
+          "videoId": video['id']['videoId'],
+          "title": video['snippet']['title'],
+          "thumbnail": video['snippet']['thumbnails']['high']['url'],
+        };
+      }).toList();
     } else {
-      throw Exception("Failed to load videos");
+      throw Exception("Failed to load YouTube videos");
     }
   }
 }

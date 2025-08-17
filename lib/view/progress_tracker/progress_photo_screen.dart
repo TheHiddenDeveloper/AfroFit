@@ -141,7 +141,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                               ),
                             ),
                           ),
-                          Text(
+                          const Text(
                             "Track Your Transformation",
                             style: TextStyle(
                               color: AppColors.grayColor,
@@ -162,7 +162,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.bar_chart_rounded,
                           color: AppColors.grayColor,
                           size: 20,
@@ -274,12 +274,12 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
             ),
           ),
           const SizedBox(height: 20),
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             color: AppColors.primaryColor1,
             strokeWidth: 3,
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'Loading your progress...',
             style: TextStyle(
               color: AppColors.grayColor,
@@ -369,7 +369,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                           : (isDue
                               ? "It's been $daysSinceLast day(s) since your last photo"
                               : "Last photo was $daysSinceLast day(s) ago"),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.grayColor,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -449,7 +449,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
               children: [
                 Text(
                   value,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.blackColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -457,7 +457,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                 ),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.grayColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -479,7 +479,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
       children: [
         Row(
           children: [
-            Text(
+            const Text(
               "Your Progress",
               style: TextStyle(
                 color: AppColors.blackColor,
@@ -490,7 +490,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
             const Spacer(),
             if (count > 0)
               GestureDetector(
-                onTap: () => Get.to(() => GalleryScreen(initialIndex: 0)),
+                onTap: () => Get.to(() => const GalleryScreen(initialIndex: 0)),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -498,7 +498,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                     color: AppColors.primaryColor1.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -509,7 +509,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
                         color: AppColors.primaryColor1,
@@ -559,7 +559,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
             ),
           ),
           const SizedBox(height: 20),
-          Text(
+          const Text(
             "Start Your Journey",
             style: TextStyle(
               color: AppColors.blackColor,
@@ -568,7 +568,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
+          const Text(
             "Capture your first progress photo and begin tracking your amazing transformation journey!",
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -730,7 +730,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                           color: AppColors.blackColor.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.delete_outline_rounded,
                           color: AppColors.whiteColor,
                           size: 16,
@@ -752,14 +752,14 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.whiteColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
+        title: const Text(
           'Delete Photo',
           style: TextStyle(
             color: AppColors.blackColor,
             fontWeight: FontWeight.w700,
           ),
         ),
-        content: Text(
+        content: const Text(
           'Are you sure you want to delete this progress photo? This action cannot be undone.',
           style: TextStyle(
             color: AppColors.grayColor,
@@ -769,7 +769,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
+            child: const Text(
               'Cancel',
               style: TextStyle(
                 color: AppColors.grayColor,
@@ -791,7 +791,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                 Navigator.pop(context);
                 Get.find<ProgressPhotoController>().deletePhoto(photoPath);
               },
-              child: Text(
+              child: const Text(
                 'Delete',
                 style: TextStyle(
                   color: AppColors.whiteColor,

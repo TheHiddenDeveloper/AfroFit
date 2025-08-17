@@ -19,25 +19,25 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
       "no": "01",
       "title": "Spread Your Arms",
       "detail":
-      "To make the gestures feel more relaxed, stretch your arms as you start this movement. No bending of hands."
+          "To make the gestures feel more relaxed, stretch your arms as you start this movement. No bending of hands."
     },
     {
       "no": "02",
       "title": "Rest at The Toe",
       "detail":
-      "The basis of this movement is jumping. Now, what needs to be considered is that you have to use the tips of your feet"
+          "The basis of this movement is jumping. Now, what needs to be considered is that you have to use the tips of your feet"
     },
     {
       "no": "03",
       "title": "Adjust Foot Movement",
       "detail":
-      "Jumping Jack is not just an ordinary jump. But, you also have to pay close attention to leg movements."
+          "Jumping Jack is not just an ordinary jump. But, you also have to pay close attention to leg movements."
     },
     {
       "no": "04",
       "title": "Clapping Both Hands",
       "detail":
-      "This cannot be taken lightly. You see, without realizing it, the clapping of your hands helps you to keep your rhythm while doing the Jumping Jack"
+          "This cannot be taken lightly. You see, without realizing it, the clapping of your hands helps you to keep your rhythm while doing the Jumping Jack"
     },
   ];
 
@@ -135,7 +135,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
               ),
               Text(
                 widget.eObj["title"].toString(),
-                style: TextStyle(
+                style: const TextStyle(
                     color: AppColors.blackColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w700),
@@ -143,7 +143,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
               const SizedBox(
                 height: 4,
               ),
-              Text(
+              const Text(
                 "Easy | 390 Calories Burn",
                 style: TextStyle(
                   color: AppColors.grayColor,
@@ -153,7 +153,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
               const SizedBox(
                 height: 15,
               ),
-              Text(
+              const Text(
                 "Descriptions",
                 style: TextStyle(
                     color: AppColors.blackColor,
@@ -163,7 +163,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
               const SizedBox(
                 height: 4,
               ),
-              ReadMoreText(
+              const ReadMoreText(
                 'A jumping jack, also known as a star jump and called a side-straddle hop in the US military, is a physical jumping exercise performed by jumping to a position with the legs spread wide A jumping jack, also known as a star jump and called a side-straddle hop in the US military, is a physical jumping exercise performed by jumping to a position with the legs spread wide',
                 trimLines: 4,
                 colorClickableText: AppColors.blackColor,
@@ -174,8 +174,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                   color: AppColors.grayColor,
                   fontSize: 12,
                 ),
-                moreStyle:
-                const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                moreStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
               ),
               const SizedBox(
                 height: 15,
@@ -183,7 +182,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "How To Do It",
                     style: TextStyle(
                         color: AppColors.blackColor,
@@ -194,7 +193,8 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                     onPressed: () {},
                     child: Text(
                       "${stepArr.length} Sets",
-                      style: TextStyle(color: AppColors.grayColor, fontSize: 12),
+                      style: const TextStyle(
+                          color: AppColors.grayColor, fontSize: 12),
                     ),
                   )
                 ],
@@ -212,7 +212,7 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                   );
                 }),
               ),
-              Text(
+              const Text(
                 "Custom Repetitions",
                 style: TextStyle(
                     color: AppColors.blackColor,
@@ -228,9 +228,12 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                     height: 40,
                     decoration: BoxDecoration(
                       border: Border(
-                        top: BorderSide(color: AppColors.grayColor.withOpacity(0.2), width: 1),
+                        top: BorderSide(
+                            color: AppColors.grayColor.withOpacity(0.2),
+                            width: 1),
                         bottom: BorderSide(
-                            color: AppColors.grayColor.withOpacity(0.2), width: 1),
+                            color: AppColors.grayColor.withOpacity(0.2),
+                            width: 1),
                       ),
                     ),
                   ),
@@ -248,18 +251,20 @@ class _ExercisesStepDetailsState extends State<ExercisesStepDetails> {
                         ),
                         Text(
                           " ${(index + 1) * 15} Calories Burn",
-                          style: TextStyle(color: AppColors.grayColor, fontSize: 10),
+                          style: const TextStyle(
+                              color: AppColors.grayColor, fontSize: 10),
                         ),
                         Text(
                           " ${index + 1} ",
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: AppColors.grayColor,
                               fontSize: 24,
                               fontWeight: FontWeight.w500),
                         ),
-                        Text(
+                        const Text(
                           " times",
-                          style: TextStyle(color: AppColors.grayColor, fontSize: 16),
+                          style: TextStyle(
+                              color: AppColors.grayColor, fontSize: 16),
                         )
                       ],
                     );

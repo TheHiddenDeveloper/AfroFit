@@ -116,9 +116,9 @@ class _GalleryScreenState extends State<GalleryScreen>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ).createShader(bounds),
-                                child: Text(
+                                child: const Text(
                                   "Progress Gallery",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppColors.whiteColor,
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
@@ -128,7 +128,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                               )),
                           Obx(() => Text(
                                 "${c.photos.length} ${c.photos.length == 1 ? 'Photo' : 'Photos'}",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.grayColor,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -147,7 +147,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.more_vert_rounded,
                           color: AppColors.grayColor,
                           size: 20,
@@ -209,7 +209,7 @@ class _GalleryScreenState extends State<GalleryScreen>
               ),
             ),
             const SizedBox(height: 32),
-            Text(
+            const Text(
               "No Progress Photos Yet",
               style: TextStyle(
                 color: AppColors.blackColor,
@@ -218,7 +218,7 @@ class _GalleryScreenState extends State<GalleryScreen>
               ),
             ),
             const SizedBox(height: 12),
-            Text(
+            const Text(
               "Start capturing your fitness journey!\nTake your first progress photo to track your transformation.",
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -380,7 +380,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                       color: AppColors.blackColor.withOpacity(0.5),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.photo_outlined,
                       color: AppColors.whiteColor,
                       size: 16,

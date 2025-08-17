@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 class ExercisesRow extends StatelessWidget {
   final Map eObj;
   final VoidCallback onPressed;
-  const ExercisesRow({Key? key, required this.eObj, required this.onPressed}) : super(key: key);
+  const ExercisesRow({Key? key, required this.eObj, required this.onPressed})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +27,24 @@ class ExercisesRow extends StatelessWidget {
           ),
           Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    eObj["title"].toString(),
-                    style: TextStyle(color: AppColors.blackColor, fontSize: 14, fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    eObj["value"].toString(),
-                    style: TextStyle(
-                      color: AppColors.grayColor,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              )),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                eObj["title"].toString(),
+                style: const TextStyle(
+                    color: AppColors.blackColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500),
+              ),
+              Text(
+                eObj["value"].toString(),
+                style: const TextStyle(
+                  color: AppColors.grayColor,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          )),
           IconButton(
               onPressed: onPressed,
               icon: Image.asset(

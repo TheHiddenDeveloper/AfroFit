@@ -7,7 +7,14 @@ class IconTitleNextRow extends StatelessWidget {
   final String time;
   final VoidCallback onPressed;
   final Color color;
-  const IconTitleNextRow({Key? key, required this.icon, required this.title, required this.time, required this.onPressed, required this.color}) : super(key: key);
+  const IconTitleNextRow(
+      {Key? key,
+      required this.icon,
+      required this.title,
+      required this.time,
+      required this.onPressed,
+      required this.color})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,23 +43,25 @@ class IconTitleNextRow extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                title ,
-                style: TextStyle(color: AppColors.grayColor, fontSize: 12),
+                title,
+                style:
+                    const TextStyle(color: AppColors.grayColor, fontSize: 12),
               ),
             ),
             SizedBox(
               width: 120,
               child: Text(
-                time  ,
+                time,
                 textAlign: TextAlign.right,
-                style: TextStyle(color: AppColors.grayColor, fontSize: 12),
+                style:
+                    const TextStyle(color: AppColors.grayColor, fontSize: 12),
               ),
             ),
             const SizedBox(width: 8),
             SizedBox(
               width: 25,
               height: 25,
-              child:  Container(
+              child: Container(
                 width: 25,
                 height: 25,
                 alignment: Alignment.center,
@@ -63,7 +72,6 @@ class IconTitleNextRow extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
-
             )
           ],
         ),
