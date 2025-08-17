@@ -120,7 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
       title: Text(
-        'FitTracker',
+        'AfroFit',
         style: TextStyle(
           color: AppColors.blackColor,
           fontWeight: FontWeight.bold,

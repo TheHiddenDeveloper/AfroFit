@@ -10,21 +10,27 @@ import '../../controllers/user_controller.dart';
 import '../profile/edit_profile_screen.dart';
 
 class UserProfile extends StatelessWidget {
-
   static String routeName = "/UserProfileScreen";
 
   const UserProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Get UserController instance to access user data
     final UserController userController = Get.find<UserController>();
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
+
+      // App bar with profile title
       appBar: AppBar(
         backgroundColor: AppColors.whiteColor,
         centerTitle: true,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.blackColor),
+          onPressed: () => Get.back(),
+        ),
         title: const Text(
           "Profile",
           style: TextStyle(
@@ -33,8 +39,11 @@ class UserProfile extends StatelessWidget {
               fontWeight: FontWeight.w700),
         ),
         actions: [
+          // More options button (functionality to be implemented)
           InkWell(
-            onTap: () {},
+            onTap: () {
+              // TODO: Implement more options menu
+            },
             child: Container(
               margin: const EdgeInsets.all(8),
               height: 40,
@@ -53,13 +62,20 @@ class UserProfile extends StatelessWidget {
           )
         ],
       ),
+
+      // Use Obx for reactive UI updates when user data changes
       body: Obx(() {
+        // Get current user data from controller
         final user = userController.user;
-        final fullName = "${user?.firstName} ${user?.lastName}";
+
+        // Prepare display data with fallbacks for missing information
+        final fullName =
+            "${user?.firstName ?? ''} ${user?.lastName ?? ''}".trim();
         final goal = user?.goal ?? "-";
-        final height = user?.height ?? "-";
-        final weight = user?.weight ?? "-";
-        final age = user?.age ?? "-";
+        final height = user?.height?.toString() ?? "-";
+        final weight = user?.weight?.toString() ?? "-";
+        final age = user?.age?.toString() ?? "-";
+        // Format BMI to 1 decimal place if available
         final bmi = user?.bmi != null ? user?.bmi!.toStringAsFixed(1) : "-";
 
         return SingleChildScrollView(
@@ -68,30 +84,36 @@ class UserProfile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // User profile header section
                 Row(
                   children: [
+                    // User avatar image
                     ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: Image.asset(
-                        "assets/images/user.png",
+                        "assets/images/user.png", // Default user image
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(width: 15),
+
+                    // User name and goal info
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Display full name or placeholder if empty
                           Text(
-                            fullName,
+                            fullName.isNotEmpty ? fullName : "User Name",
                             style: const TextStyle(
                               color: AppColors.blackColor,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
+                          // Display goal or placeholder
                           Text(
                             goal,
                             style: const TextStyle(
@@ -102,6 +124,8 @@ class UserProfile extends StatelessWidget {
                         ],
                       ),
                     ),
+
+                    // Edit profile button
                     SizedBox(
                       width: 70,
                       height: 25,
@@ -109,6 +133,7 @@ class UserProfile extends StatelessWidget {
                         title: "Edit",
                         type: RoundButtonType.primaryBG,
                         onPressed: () {
+                          // Navigate to edit profile screen
                           Get.to(() => const EditProfileScreen());
                         },
                       ),
@@ -116,8 +141,11 @@ class UserProfile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 15),
+
+                // User stats row (Height, Weight, Age)
                 Row(
                   children: [
+                    // Height display
                     Expanded(
                       child: TitleSubtitleCell(
                         title: "$height cm",
@@ -125,6 +153,8 @@ class UserProfile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 15),
+
+                    // Weight display
                     Expanded(
                       child: TitleSubtitleCell(
                         title: "$weight kg",
@@ -132,6 +162,8 @@ class UserProfile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 15),
+
+                    // Age display
                     Expanded(
                       child: TitleSubtitleCell(
                         title: "$age yo",
@@ -141,15 +173,18 @@ class UserProfile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
+
+                // BMI display
                 TitleSubtitleCell(
                   title: "BMI: $bmi",
                   subtitle: "Body Mass Index",
                 ),
                 const SizedBox(height: 25),
 
-                /// Notification Toggle Section
+                /// Notification Settings Section
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   decoration: BoxDecoration(
                     color: AppColors.whiteColor,
                     borderRadius: BorderRadius.circular(15),
@@ -160,6 +195,7 @@ class UserProfile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Notification section title
                       const Text(
                         "Notification",
                         style: TextStyle(
@@ -169,11 +205,16 @@ class UserProfile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+
+                      // Notification toggle row
                       Row(
                         children: [
+                          // Notification icon
                           Image.asset("assets/icons/p_notification.png",
                               height: 15, width: 15),
                           const SizedBox(width: 15),
+
+                          // Notification label
                           const Expanded(
                             child: Text(
                               "Pop-up Notification",
@@ -183,20 +224,26 @@ class UserProfile extends StatelessWidget {
                               ),
                             ),
                           ),
+
+                          // Reactive notification toggle switch
                           Obx(() {
                             return CustomAnimatedToggleSwitch<bool>(
                               current: userController.notificationEnabled,
                               values: const [false, true],
                               dif: 0.0,
                               indicatorSize: const Size.square(30.0),
-                              animationDuration: const Duration(milliseconds: 200),
+                              animationDuration:
+                                  const Duration(milliseconds: 200),
                               animationCurve: Curves.linear,
+                              // Handle toggle state change
                               onChanged: (val) {
                                 userController.toggleNotification(val);
                               },
-                              iconBuilder: (context, local, global) => const SizedBox(),
+                              iconBuilder: (context, local, global) =>
+                                  const SizedBox(),
                               defaultCursor: SystemMouseCursors.click,
                               iconsTappable: false,
+                              // Custom switch background design
                               wrapperBuilder: (context, global, child) {
                                 return Stack(
                                   alignment: Alignment.center,
@@ -209,8 +256,8 @@ class UserProfile extends StatelessWidget {
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                               colors: AppColors.secondaryG),
-                                          borderRadius:
-                                              const BorderRadius.all(Radius.circular(30.0)),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(30.0)),
                                         ),
                                       ),
                                     ),
@@ -218,6 +265,7 @@ class UserProfile extends StatelessWidget {
                                   ],
                                 );
                               },
+                              // Custom switch indicator design
                               foregroundIndicatorBuilder: (context, global) {
                                 return SizedBox.fromSize(
                                   size: const Size(10, 10),
