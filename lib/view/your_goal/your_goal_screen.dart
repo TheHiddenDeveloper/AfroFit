@@ -24,20 +24,23 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
     {
       "title": "Improve Shape",
       "subtitle":
-          "I have a low amount of body fat\nand need / want to build more\nmuscle",
-      "image": "assets/images/goal_1.png"
+          "I have a low amount of body fat and need / want to build more muscle",
+      "image": "assets/images/goal_1.png",
+      "color": "primary"
     },
     {
       "title": "Lean & Tone",
       "subtitle":
-          "I'm skinny fat. look thin but have\nno shape. I want to add lean\nmuscle in the right way",
-      "image": "assets/images/goal_2.png"
+          "I'm skinny fat. Look thin but have no shape. I want to add lean muscle in the right way",
+      "image": "assets/images/goal_2.png",
+      "color": "secondary"
     },
     {
       "title": "Lose Fat",
       "subtitle":
-          "I have over 20 lbs to lose. I want to\ndrop all this fat and gain muscle\nmass",
-      "image": "assets/images/goal_3.png"
+          "I have over 20 lbs to lose. I want to drop all this fat and gain muscle mass",
+      "image": "assets/images/goal_3.png",
+      "color": "primary"
     }
   ];
 
@@ -136,17 +139,31 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
 
       // Show success message
       Get.snackbar("Success", "Profile setup completed successfully!",
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
 
       // Navigate to main app (WelcomeScreen or Home)
       Get.offAllNamed(WelcomeScreen.routeName);
     } catch (e) {
       // Handle and display errors
-      Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Error", e.toString(),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
       print("Error saving goal: $e");
     }
 
     setState(() => isSaving = false);
+  }
+
+  List<Color> _getGradientColors(String colorType) {
+    switch (colorType) {
+      case "secondary":
+        return AppColors.secondaryG;
+      default:
+        return AppColors.primaryG;
+    }
   }
 
   @override
@@ -156,126 +173,273 @@ class _YourGoalScreenState extends State<YourGoalScreen> {
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: SafeArea(
-        child: Stack(
-          children: [
-            // Carousel slider for goal selection
-            Center(
-              child: CarouselSlider(
-                carouselController: carouselController,
-                items: pageList.map((obj) {
-                  return Container(
-                    // Gradient background for each goal card
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: LinearGradient(
-                        colors: AppColors.primaryG,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: media.height - MediaQuery.of(context).padding.top,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 30),
+
+                  // Header section
+                  Column(
+                    children: [
+                      // Screen title
+                      const Text(
+                        "What is your goal?",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Screen subtitle
+                      Text(
+                        "It will help us choose the best program for you",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.grayColor,
+                          fontSize: 16,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Carousel slider for goal selection - FIXED UI
+                  SizedBox(
+                    height:
+                        media.height * 0.55, // Fixed height to prevent overflow
+                    child: CarouselSlider(
+                      carouselController: carouselController,
+                      items: pageList.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        Map<String, String> obj = entry.value;
+                        bool isSelected = currentIndex == index;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              gradient: LinearGradient(
+                                colors: _getGradientColors(
+                                    obj["color"] ?? "primary"),
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _getGradientColors(
+                                          obj["color"] ?? "primary")[0]
+                                      .withOpacity(isSelected ? 0.4 : 0.2),
+                                  blurRadius: isSelected ? 20 : 10,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(24),
+                              child: Stack(
+                                children: [
+                                  // Background image - covers entire card
+                                  Positioned.fill(
+                                    child: Image.asset(
+                                      obj["image"]!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          color: Colors.grey.shade300,
+                                          child: const Icon(
+                                            Icons.image_not_supported,
+                                            color: Colors.grey,
+                                            size: 50,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                  // Gradient overlay for better text readability
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.black.withOpacity(0.3),
+                                            Colors.black.withOpacity(0.6),
+                                          ],
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Text content overlay - positioned at bottom
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // Goal title
+                                          Text(
+                                            obj["title"]!,
+                                            style: const TextStyle(
+                                              color: AppColors.whiteColor,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 8),
+
+                                          // Divider line
+                                          Container(
+                                            width: 60,
+                                            height: 2,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.whiteColor
+                                                  .withOpacity(0.8),
+                                              borderRadius:
+                                                  BorderRadius.circular(2),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+
+                                          // Goal description - with proper overflow handling
+                                          ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxHeight: media.height * 0.12,
+                                            ),
+                                            child: SingleChildScrollView(
+                                              child: Text(
+                                                obj["subtitle"]!,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: AppColors.whiteColor
+                                                      .withOpacity(0.95),
+                                                  fontSize: 13,
+                                                  height: 1.4,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      options: CarouselOptions(
+                        height: media.height * 0.55,
+                        enlargeCenterPage: true,
+                        enlargeFactor: 0.25,
+                        enableInfiniteScroll: false,
+                        initialPage: 0,
+                        viewportFraction: 0.8,
+                        autoPlay: false,
+                        onPageChanged: (index, reason) {
+                          setState(() => currentIndex = index);
+                        },
                       ),
                     ),
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.symmetric(
-                      vertical: media.width * 0.01,
-                      horizontal: 25,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Page indicators
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: pageList.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      bool isSelected = currentIndex == index;
+
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        height: 8,
+                        width: isSelected ? 24 : 8,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.primaryColor1
+                              : AppColors.grayColor.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Selected goal info
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade100),
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Goal illustration image
-                        Image.asset(
-                          obj["image"]!,
-                          width: media.width * 0.5,
-                          fit: BoxFit.fitWidth,
-                        ),
-                        const SizedBox(height: 10),
-
-                        // Goal title
                         Text(
-                          obj["title"]!,
-                          style: const TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                          "Selected Goal:",
+                          style: TextStyle(
+                            color: AppColors.grayColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 5),
-
-                        // Divider line
-                        Container(
-                            width: 50, height: 1, color: AppColors.whiteColor),
-                        const SizedBox(height: 8),
-
-                        // Goal description
+                        const SizedBox(height: 4),
                         Text(
-                          obj["subtitle"]!,
-                          textAlign: TextAlign.center,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
+                          pageList[currentIndex]["title"]!,
                           style: const TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 12,
+                            color: AppColors.blackColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
-                  );
-                }).toList(),
-                options: CarouselOptions(
-                  height: media.height * 0.55,
-                  enlargeCenterPage: true, // Make center card bigger
-                  enableInfiniteScroll: false, // Don't loop infinitely
-                  initialPage: 0, // Start with first goal
-                  viewportFraction: 0.75, // Show parts of adjacent cards
-                  // Update current index when user swipes
-                  onPageChanged: (index, reason) =>
-                      setState(() => currentIndex = index),
-                ),
-              ),
-            ),
-
-            // Header and confirmation button overlay
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Column(
-                children: [
-                  const SizedBox(height: 15),
-
-                  // Screen title
-                  const Text(
-                    "What is your goal?",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.blackColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-
-                  // Screen subtitle
-                  const Text(
-                    "It will help us to choose the best\nprogram for you",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.grayColor,
-                      fontSize: 12,
-                      fontFamily: "Poppins",
-                    ),
                   ),
 
-                  // Push confirmation button to bottom
-                  const Spacer(),
+                  const SizedBox(height: 20),
 
                   // Confirm goal selection button
                   RoundGradientButton(
-                    title: isSaving ? "Saving..." : "Confirm",
+                    title: isSaving
+                        ? "Setting up your profile..."
+                        : "Let's Get Started!",
                     onPressed: isSaving ? null : _saveGoalAndNavigate,
                   ),
-                  const SizedBox(height: 25),
+
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

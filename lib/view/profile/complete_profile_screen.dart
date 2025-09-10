@@ -183,6 +183,44 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     }
   }
 
+  /// Build styled unit selector dropdown
+  Widget _buildUnitSelector<T>({
+    required T value,
+    required List<T> items,
+    required String Function(T) getLabel,
+    required void Function(T?) onChanged,
+  }) {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColors.lightGrayColor,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: AppColors.lightGrayColor),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          isExpanded: true,
+          icon:
+              const Icon(Icons.keyboard_arrow_down, color: AppColors.grayColor),
+          style: const TextStyle(
+            color: AppColors.blackColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          items: items
+              .map((item) => DropdownMenuItem<T>(
+                    value: item,
+                    child: Text(getLabel(item)),
+                  ))
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context).size;
@@ -192,13 +230,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
+                const SizedBox(height: 20),
+
                 // Header image
                 Image.asset("assets/images/complete_profile.png",
-                    width: media.width),
-                const SizedBox(height: 15),
+                    width: media.width * 0.8),
+                const SizedBox(height: 25),
 
                 // Header text
                 const Text(
@@ -208,7 +248,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       fontSize: 20,
                       fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 8),
                 const Text(
                   "It will help us to know more about you!",
                   style: TextStyle(
@@ -218,10 +258,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 30),
 
                 // Gender selection dropdown
                 Container(
+                  height: 56,
                   decoration: BoxDecoration(
                     color: AppColors.lightGrayColor,
                     borderRadius: BorderRadius.circular(15),
@@ -251,14 +292,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                                 style: TextStyle(
                                     color: AppColors.grayColor, fontSize: 12)),
                             isExpanded: true,
+                            icon: const Icon(Icons.keyboard_arrow_down,
+                                color: AppColors.grayColor),
                             items: ["Male", "Female"]
                                 .map((gender) => DropdownMenuItem(
                                       value: gender,
                                       child: Text(
                                         gender,
                                         style: const TextStyle(
-                                            color: AppColors.grayColor,
-                                            fontSize: 14),
+                                            color: AppColors.blackColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ))
                                 .toList(),
@@ -267,7 +311,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 15),
                     ],
                   ),
                 ),
@@ -291,6 +335,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 Row(
                   children: [
                     Expanded(
+                      flex: 3,
                       child: RoundTextField(
                         hintText: "Your Weight",
                         icon: "assets/icons/weight_icon.png",
@@ -298,19 +343,20 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                         textEditingController: weightController,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    // Weight unit dropdown
-                    DropdownButton<WeightUnit>(
-                      value: selectedWeightUnit,
-                      items: WeightUnit.values.map((unit) {
-                        return DropdownMenuItem(
-                          value: unit,
-                          child: Text(unit == WeightUnit.kg ? "kg" : "lbs"),
-                        );
-                      }).toList(),
-                      onChanged: (unit) {
-                        setState(() => selectedWeightUnit = unit!);
-                      },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 1,
+                      child: _buildUnitSelector<WeightUnit>(
+                        value: selectedWeightUnit,
+                        items: WeightUnit.values,
+                        getLabel: (unit) =>
+                            unit == WeightUnit.kg ? "kg" : "lbs",
+                        onChanged: (unit) {
+                          if (unit != null) {
+                            setState(() => selectedWeightUnit = unit);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -320,6 +366,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 Row(
                   children: [
                     Expanded(
+                      flex: 3,
                       child: RoundTextField(
                         hintText: "Your Height",
                         icon: "assets/icons/swap_icon.png",
@@ -327,30 +374,31 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                         textEditingController: heightController,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    // Height unit dropdown
-                    DropdownButton<HeightUnit>(
-                      value: selectedHeightUnit,
-                      items: HeightUnit.values.map((unit) {
-                        return DropdownMenuItem(
-                          value: unit,
-                          child:
-                              Text(unit == HeightUnit.meters ? "m" : "ft/in"),
-                        );
-                      }).toList(),
-                      onChanged: (unit) {
-                        setState(() => selectedHeightUnit = unit!);
-                      },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 1,
+                      child: _buildUnitSelector<HeightUnit>(
+                        value: selectedHeightUnit,
+                        items: HeightUnit.values,
+                        getLabel: (unit) =>
+                            unit == HeightUnit.meters ? "m" : "ft",
+                        onChanged: (unit) {
+                          if (unit != null) {
+                            setState(() => selectedHeightUnit = unit);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 25),
 
                 // Submit button with loading state
                 RoundGradientButton(
                   title: isLoading ? "Saving..." : "Next >",
                   onPressed: isLoading ? null : _submitProfile,
                 ),
+                const SizedBox(height: 20),
               ],
             ),
           ),

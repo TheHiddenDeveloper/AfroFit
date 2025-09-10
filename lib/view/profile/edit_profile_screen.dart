@@ -28,6 +28,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController heightController;
   late TextEditingController ageController;
 
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +65,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveProfile() async {
     // Validate form before saving
     if (_formKey.currentState?.validate() ?? false) {
+      setState(() => isLoading = true);
+
       try {
         // Create updated user object with form data
         final updatedUser = AppUser(
@@ -81,6 +85,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         // Show success message
         Get.snackbar("Success", "Profile updated successfully",
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
 
         // Navigate back to profile screen
@@ -88,40 +94,117 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       } catch (e) {
         // Handle and display errors
         Get.snackbar("Error", "Failed to update profile: $e",
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
         print("Error updating profile: $e");
       }
+
+      setState(() => isLoading = false);
     }
   }
 
   /// Build input field widget with consistent styling
-  Widget _buildInputField(String label, TextEditingController controller,
-      {TextInputType? keyboardType}) {
+  Widget _buildInputField(
+    String label,
+    TextEditingController controller, {
+    TextInputType? keyboardType,
+    String? suffix,
+    int? maxLines = 1,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Field label
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: AppColors.blackColor,
+          ),
+        ),
         const SizedBox(height: 8),
 
         // Input field with validation
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          maxLines: maxLines,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.blackColor,
+          ),
           decoration: InputDecoration(
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             filled: true,
             fillColor: AppColors.lightGrayColor,
+            suffixText: suffix,
+            suffixStyle: const TextStyle(
+              color: AppColors.grayColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            hintStyle: const TextStyle(
+              color: AppColors.grayColor,
+              fontSize: 14,
+            ),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none),
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                color: AppColors.primaryColor1,
+                width: 2,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(
+                color: Colors.red,
+                width: 1,
+              ),
+            ),
           ),
           // Basic validation - field is required
-          validator: (value) =>
-              value == null || value.isEmpty ? 'Required' : null,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'This field is required';
+            }
+
+            // Additional validation for numeric fields
+            if (keyboardType == TextInputType.number) {
+              if (double.tryParse(value.trim()) == null) {
+                return 'Please enter a valid number';
+              }
+
+              final numValue = double.parse(value.trim());
+              if (label.toLowerCase().contains('weight') &&
+                  (numValue <= 0 || numValue > 500)) {
+                return 'Please enter a valid weight (1-500)';
+              }
+              if (label.toLowerCase().contains('height') &&
+                  (numValue <= 0 || numValue > 300)) {
+                return 'Please enter a valid height (1-300)';
+              }
+              if (label.toLowerCase().contains('age') &&
+                  (numValue < 10 || numValue > 120)) {
+                return 'Please enter a valid age (10-120)';
+              }
+            }
+
+            return null;
+          },
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -131,54 +214,109 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       // App bar with title
       appBar: AppBar(
-        title: const Text("Edit Profile",
-            style: TextStyle(color: AppColors.blackColor)),
+        title: const Text(
+          "Edit Profile",
+          style: TextStyle(
+            color: AppColors.blackColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
         backgroundColor: AppColors.whiteColor,
         iconTheme: const IconThemeData(color: AppColors.blackColor),
-        elevation: 1,
+        elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios, size: 20),
           onPressed: () => Get.back(),
         ),
       ),
       backgroundColor: AppColors.whiteColor,
 
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // First Name input
-              _buildInputField("First Name", firstNameController),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            // Profile section header
+            const Text(
+              "Personal Information",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.blackColor,
+              ),
+            ),
+            const SizedBox(height: 20),
 
-              // Last Name input
-              _buildInputField("Last Name", lastNameController),
+            // First Name and Last Name in a row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInputField("First Name", firstNameController),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: _buildInputField("Last Name", lastNameController),
+                ),
+              ],
+            ),
 
-              // Goal input
-              _buildInputField("Goal", goalController),
+            // Goal input - larger text area
+            _buildInputField("Goal", goalController, maxLines: 3),
 
-              // Weight input (numeric)
-              _buildInputField("Weight (kg)", weightController,
-                  keyboardType: TextInputType.number),
+            // Physical measurements section
+            const Text(
+              "Physical Measurements",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.blackColor,
+              ),
+            ),
+            const SizedBox(height: 20),
 
-              // Height input (numeric)
-              _buildInputField("Height (cm)", heightController,
-                  keyboardType: TextInputType.number),
+            // Weight and Age in a row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildInputField(
+                    "Weight",
+                    weightController,
+                    keyboardType: TextInputType.number,
+                    suffix: "kg",
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: _buildInputField(
+                    "Age",
+                    ageController,
+                    keyboardType: TextInputType.number,
+                    suffix: "years",
+                  ),
+                ),
+              ],
+            ),
 
-              // Age input (numeric)
-              _buildInputField("Age", ageController,
-                  keyboardType: TextInputType.number),
+            // Height input
+            _buildInputField(
+              "Height",
+              heightController,
+              keyboardType: TextInputType.number,
+              suffix: "cm",
+            ),
 
-              const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
-              // Save button
-              RoundGradientButton(
-                title: "Save",
-                onPressed: _saveProfile,
-              )
-            ],
-          ),
+            // Save button with loading state
+            RoundGradientButton(
+              title: isLoading ? "Saving..." : "Save Changes",
+              onPressed: isLoading ? null : _saveProfile,
+            ),
+
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );

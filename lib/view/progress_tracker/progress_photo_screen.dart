@@ -6,7 +6,147 @@ import 'package:fitnessapp/view/progress_tracker/ui/gallery_screen.dart';
 import 'package:fitnessapp/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
+// PhotoCard Widget
+class PhotoCard extends StatelessWidget {
+  final File file;
+  final DateTime date;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const PhotoCard({
+    super.key,
+    required this.file,
+    required this.date,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final f = DateFormat.yMMMd().add_jm();
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.blackColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: onTap,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.file(
+                file,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+          ),
+          Positioned(
+            left: 8,
+            bottom: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                f.format(date),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 6,
+            top: 6,
+            child: GestureDetector(
+              onTap: onDelete,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(6),
+                child: const Icon(
+                  Icons.delete_outline,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// EmptyState Widget
+class EmptyState extends StatelessWidget {
+  const EmptyState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors:
+                    AppColors.primaryG.map((c) => c.withOpacity(0.1)).toList(),
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.photo_camera_outlined,
+              size: 64,
+              color: AppColors.grayColor.withOpacity(0.7),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "No progress photos yet",
+            style: TextStyle(
+              color: AppColors.blackColor,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Capture your first photo to start your 30-day journey.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.grayColor,
+              fontSize: 14,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Main ProgressPhotoScreen
 class ProgressPhotoScreen extends StatefulWidget {
   static const String routeName = "/ProgressPhotoScreen";
   const ProgressPhotoScreen({super.key});
@@ -15,240 +155,94 @@ class ProgressPhotoScreen extends StatefulWidget {
   State<ProgressPhotoScreen> createState() => _ProgressPhotoScreenState();
 }
 
-class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _fabController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _fabScale;
+class _ProgressPhotoScreenState extends State<ProgressPhotoScreen> {
+  late final ProgressPhotoController controller;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _fabController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeOutCubic),
-    );
-
-    _fabScale = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fabController, curve: Curves.elasticOut),
-    );
-
-    _fadeController.forward();
-    Future.delayed(const Duration(milliseconds: 400), () {
-      _fabController.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    _fabController.dispose();
-    super.dispose();
+    controller = Get.put(ProgressPhotoController());
   }
 
   @override
   Widget build(BuildContext context) {
-    final c = Get.put(ProgressPhotoController());
-
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.primaryColor1.withOpacity(0.05),
-              AppColors.whiteColor,
-              AppColors.secondaryColor1.withOpacity(0.03),
-            ],
-            stops: const [0.0, 0.6, 1.0],
+      backgroundColor: AppColors.lightGrayColor,
+      appBar: _buildAppBar(),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return _buildLoadingState();
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.refreshPhotos,
+          color: AppColors.primaryColor1,
+          backgroundColor: AppColors.whiteColor,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProgressCard(),
+                const SizedBox(height: 24),
+                _buildPhotosSection(),
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Custom app bar
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                decoration: BoxDecoration(
-                  color: AppColors.whiteColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.blackColor.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: AppColors.primaryG,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryColor1.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.whiteColor,
-                          size: 20,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
+        );
+      }),
+      floatingActionButton: _buildFloatingActionButton(),
+    );
+  }
 
-                    const SizedBox(width: 16),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ShaderMask(
-                            shaderCallback: (bounds) => LinearGradient(
-                              colors: AppColors.primaryG,
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ).createShader(bounds),
-                            child: const Text(
-                              "Progress Photos",
-                              style: TextStyle(
-                                color: AppColors.whiteColor,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                          const Text(
-                            "Track Your Transformation",
-                            style: TextStyle(
-                              color: AppColors.grayColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Stats icon
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.lightGrayColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.bar_chart_rounded,
-                          color: AppColors.grayColor,
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          // Add stats view
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Main content
-              Expanded(
-                child: Obx(() {
-                  if (c.isLoading.value) {
-                    return _buildLoadingState();
-                  }
-
-                  return RefreshIndicator(
-                    onRefresh: c.refreshPhotos,
-                    color: AppColors.primaryColor1,
-                    backgroundColor: AppColors.whiteColor,
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: ListView(
-                        padding: const EdgeInsets.all(20),
-                        children: [
-                          _buildProgressCard(c),
-                          const SizedBox(height: 24),
-                          _buildPhotoSection(c),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: ScaleTransition(
-        scale: _fabScale,
-        child: Container(
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.whiteColor,
+      elevation: 0,
+      leading: IconButton(
+        icon: Container(
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: AppColors.secondaryG,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.secondaryColor1.withOpacity(0.4),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
+            color: AppColors.lightGrayColor,
+            borderRadius: BorderRadius.circular(12),
           ),
-          child: FloatingActionButton.extended(
-            onPressed: () async {
-              final tempPath =
-                  await Get.to<String?>(() => const CameraCaptureScreen());
-              if (tempPath != null) {
-                await c.addPhotoFromTemp(tempPath);
-              }
-            },
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            icon: const Icon(
-              Icons.camera_alt_rounded,
-              color: AppColors.whiteColor,
-              size: 24,
-            ),
-            label: const Text(
-              "Capture Progress",
-              style: TextStyle(
-                color: AppColors.whiteColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+          child: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColors.blackColor,
+            size: 16,
           ),
         ),
+        onPressed: () => Navigator.of(context).pop(),
       ),
+      title: const Text(
+        'Progress Photos',
+        style: TextStyle(
+          color: AppColors.blackColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.lightGrayColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.bar_chart_rounded,
+              color: AppColors.grayColor,
+              size: 20,
+            ),
+          ),
+          onPressed: () {
+            // Add stats functionality
+          },
+        ),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
@@ -258,13 +252,9 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.primaryG,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: LinearGradient(colors: AppColors.primaryG),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -273,7 +263,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
               size: 32,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           const CircularProgressIndicator(
             color: AppColors.primaryColor1,
             strokeWidth: 3,
@@ -292,40 +282,28 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
     );
   }
 
-  Widget _buildProgressCard(ProgressPhotoController c) {
-    final count = c.photos.length;
-    final daysSinceLast = c.daysSinceLast.value;
+  Widget _buildProgressCard() {
+    final count = controller.photos.length;
+    final daysSinceLast = controller.daysSinceLast.value;
     final isDue = daysSinceLast == null || daysSinceLast >= 30;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDue
-              ? [
-                  AppColors.secondaryColor1.withOpacity(0.1),
-                  AppColors.secondaryColor2.withOpacity(0.05),
-                ]
-              : [
-                  AppColors.primaryColor1.withOpacity(0.1),
-                  AppColors.primaryColor2.withOpacity(0.05),
-                ],
+              ? AppColors.secondaryG.map((c) => c.withOpacity(0.1)).toList()
+              : AppColors.primaryG.map((c) => c.withOpacity(0.1)).toList(),
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: (isDue ? AppColors.secondaryColor1 : AppColors.primaryColor1)
-              .withOpacity(0.2),
-          width: 1,
+              .withOpacity(0.3),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.blackColor.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: AppColors.whiteColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,15 +315,13 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: isDue ? AppColors.secondaryG : AppColors.primaryG,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   isDue ? Icons.schedule_rounded : Icons.trending_up_rounded,
                   color: AppColors.whiteColor,
-                  size: 24,
+                  size: 20,
                 ),
               ),
               const SizedBox(width: 16),
@@ -359,62 +335,46 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                         color: isDue
                             ? AppColors.secondaryColor1
                             : AppColors.primaryColor1,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    const SizedBox(height: 4),
                     Text(
-                      daysSinceLast == null
-                          ? "Start your 30-day progress journey"
-                          : (isDue
-                              ? "It's been $daysSinceLast day(s) since your last photo"
-                              : "Last photo was $daysSinceLast day(s) ago"),
+                      _getProgressMessage(daysSinceLast, isDue),
                       style: const TextStyle(
                         color: AppColors.grayColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
                         height: 1.3,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (isDue)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: AppColors.secondaryG,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    "Due",
-                    style: TextStyle(
-                      color: AppColors.whiteColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
             ],
           ),
           if (count > 0) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.whiteColor.withOpacity(0.7),
+                color: AppColors.whiteColor,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.lightGrayColor,
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
                   _buildStatItem(
                       "Total Photos", "$count", Icons.photo_camera_outlined),
-                  const SizedBox(width: 24),
+                  Container(
+                    width: 1,
+                    height: 30,
+                    color: AppColors.lightGrayColor,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
                   _buildStatItem("Journey Days", "${count * 30}",
                       Icons.calendar_today_rounded),
                 ],
@@ -431,7 +391,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: AppColors.primaryColor1.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
@@ -439,10 +399,10 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
             child: Icon(
               icon,
               color: AppColors.primaryColor1,
-              size: 16,
+              size: 14,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,7 +411,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                   value,
                   style: const TextStyle(
                     color: AppColors.blackColor,
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -459,7 +419,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                   label,
                   style: const TextStyle(
                     color: AppColors.grayColor,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -471,23 +431,23 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
     );
   }
 
-  Widget _buildPhotoSection(ProgressPhotoController c) {
-    final count = c.photos.length;
+  Widget _buildPhotosSection() {
+    final count = controller.photos.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              "Your Progress",
+              'Your Progress',
               style: TextStyle(
                 color: AppColors.blackColor,
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const Spacer(),
             if (count > 0)
               GestureDetector(
                 onTap: () => Get.to(() => const GalleryScreen(initialIndex: 0)),
@@ -502,18 +462,18 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "View All",
+                        'View All',
                         style: TextStyle(
                           color: AppColors.primaryColor1,
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       SizedBox(width: 4),
                       Icon(
-                        Icons.arrow_forward_ios_rounded,
+                        Icons.arrow_forward_ios,
                         color: AppColors.primaryColor1,
-                        size: 12,
+                        size: 10,
                       ),
                     ],
                   ),
@@ -522,68 +482,13 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
           ],
         ),
         const SizedBox(height: 16),
-        if (count == 0) _buildEmptyState() else _buildPhotoGrid(c),
+        count == 0 ? const EmptyState() : _buildPhotoGrid(),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.lightGrayColor,
-          width: 2,
-        ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.primaryG,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.photo_camera_outlined,
-              color: AppColors.whiteColor,
-              size: 40,
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            "Start Your Journey",
-            style: TextStyle(
-              color: AppColors.blackColor,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Capture your first progress photo and begin tracking your amazing transformation journey!",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.grayColor,
-              fontSize: 15,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPhotoGrid(ProgressPhotoController c) {
-    final photos = c.photos.take(4).toList(); // Show only first 4
+  Widget _buildPhotoGrid() {
+    final photos = controller.photos;
 
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
@@ -591,157 +496,38 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
       itemCount: photos.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.85,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.8,
       ),
       itemBuilder: (context, index) {
-        final item = photos[index];
-        return _buildPhotoCard(item, index, c.photos.length > 4 && index == 3);
+        final photo = photos[index];
+        return PhotoCard(
+          file: File(photo.path),
+          date: photo.takenAt,
+          onTap: () => Get.to(() => GalleryScreen(initialIndex: index)),
+          onDelete: () => _showDeleteDialog(photo.path),
+        );
       },
     );
   }
 
-  Widget _buildPhotoCard(dynamic item, int index, bool showMore) {
-    return GestureDetector(
-      onTap: () {
-        if (showMore) {
-          Get.to(() => GalleryScreen(initialIndex: index));
-        } else {
-          Get.to(() => GalleryScreen(initialIndex: index));
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton.extended(
+      onPressed: () async {
+        final tempPath =
+            await Get.to<String?>(() => const CameraCaptureScreen());
+        if (tempPath != null) {
+          await controller.addPhotoFromTemp(tempPath);
         }
       },
-      child: Hero(
-        tag: 'photo_$index',
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.blackColor.withOpacity(0.1),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.file(
-                  File(item.path),
-                  fit: BoxFit.cover,
-                ),
-
-                // Gradient overlay
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        AppColors.blackColor.withOpacity(0.7),
-                      ],
-                      stops: const [0.5, 1.0],
-                    ),
-                  ),
-                ),
-
-                if (showMore)
-                  Container(
-                    color: AppColors.blackColor.withOpacity(0.5),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: AppColors.primaryG,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.add_rounded,
-                              color: AppColors.whiteColor,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "+${Get.find<ProgressPhotoController>().photos.length - 3} More",
-                            style: const TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                // Photo info
-                Positioned(
-                  left: 12,
-                  right: 12,
-                  bottom: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (!showMore) ...[
-                        Text(
-                          "Progress #${index + 1}",
-                          style: const TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _formatDate(item.takenAt ?? DateTime.now()),
-                          style: TextStyle(
-                            color: AppColors.whiteColor.withOpacity(0.8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-
-                // Delete button
-                if (!showMore)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () => _showDeleteDialog(item.path),
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: AppColors.blackColor.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.delete_outline_rounded,
-                          color: AppColors.whiteColor,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
+      backgroundColor: AppColors.primaryColor1,
+      foregroundColor: AppColors.whiteColor,
+      elevation: 8,
+      icon: const Icon(Icons.camera_alt_rounded),
+      label: const Text(
+        'Take Photo',
+        style: TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -751,7 +537,7 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.whiteColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'Delete Photo',
           style: TextStyle(
@@ -777,27 +563,21 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: AppColors.secondaryG,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              controller.deletePhoto(photoPath);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.secondaryColor1,
+              foregroundColor: AppColors.whiteColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              borderRadius: BorderRadius.circular(12),
             ),
-            child: TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Get.find<ProgressPhotoController>().deletePhoto(photoPath);
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(
-                  color: AppColors.whiteColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            child: const Text(
+              'Delete',
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -805,21 +585,13 @@ class _ProgressPhotoScreenState extends State<ProgressPhotoScreen>
     );
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    return "${months[date.month - 1]} ${date.day}, ${date.year}";
+  String _getProgressMessage(int? daysSinceLast, bool isDue) {
+    if (daysSinceLast == null) {
+      return "Start your 30-day progress journey";
+    }
+    if (isDue) {
+      return "It's been $daysSinceLast day(s) since your last photo";
+    }
+    return "Last photo was $daysSinceLast day(s) ago";
   }
 }

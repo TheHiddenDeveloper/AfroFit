@@ -21,6 +21,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
   bool _isFlashOn = false;
   bool _isFrontCamera = false;
   List<CameraDescription> _cameras = [];
+  String? _errorMessage;
 
   late AnimationController _captureAnim;
   late AnimationController _flashAnim;
@@ -33,8 +34,8 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
   @override
   void initState() {
     super.initState();
-    _setup();
     _initAnimations();
+    _setup();
   }
 
   void _initAnimations() {
@@ -70,33 +71,46 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     try {
       WidgetsFlutterBinding.ensureInitialized();
       _cameras = await availableCameras();
-      if (_cameras.isEmpty) return;
+
+      if (_cameras.isEmpty) {
+        setState(() => _errorMessage = 'No cameras available on this device');
+        return;
+      }
 
       await _initCamera();
+
       if (mounted) {
-        setState(() => _isInitialized = true);
+        setState(() {
+          _isInitialized = true;
+          _errorMessage = null;
+        });
         _uiAnim.forward();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Camera initialization failed: $e'),
-            backgroundColor: AppColors.secondaryColor1,
-          ),
-        );
+        setState(() {
+          _errorMessage = 'Camera initialization failed: ${e.toString()}';
+        });
+        _showErrorSnackBar(_errorMessage!);
       }
     }
   }
 
   Future<void> _initCamera() async {
-    final camera = _cameras[_isFrontCamera ? 1 : 0];
+    // Safely get camera index
+    final cameraIndex = _isFrontCamera ? (_cameras.length > 1 ? 1 : 0) : 0;
+
+    final camera = _cameras[cameraIndex];
     _controller = CameraController(
       camera,
       ResolutionPreset.high,
       enableAudio: false,
     );
+
     await _controller!.initialize();
+
+    // Reset flash state when switching cameras
+    _isFlashOn = false;
   }
 
   Future<void> _toggleCamera() async {
@@ -107,25 +121,42 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       _isInitialized = false;
     });
 
-    await _controller?.dispose();
-    await _initCamera();
+    try {
+      await _controller?.dispose();
+      await _initCamera();
 
-    if (mounted) {
-      setState(() => _isInitialized = true);
+      if (mounted) {
+        setState(() => _isInitialized = true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to switch camera: ${e.toString()}';
+          _isInitialized = false;
+        });
+        _showErrorSnackBar(_errorMessage!);
+      }
     }
   }
 
   Future<void> _toggleFlash() async {
-    if (_controller == null) return;
+    if (_controller == null || !_controller!.value.isInitialized) return;
 
-    setState(() => _isFlashOn = !_isFlashOn);
+    // Front camera typically doesn't support flash
+    if (_isFrontCamera) {
+      _showErrorSnackBar('Flash not available on front camera');
+      return;
+    }
 
     try {
+      setState(() => _isFlashOn = !_isFlashOn);
       await _controller!.setFlashMode(
         _isFlashOn ? FlashMode.torch : FlashMode.off,
       );
     } catch (e) {
-      // Handle flash error
+      // Revert flash state if setting failed
+      setState(() => _isFlashOn = !_isFlashOn);
+      _showErrorSnackBar('Flash control failed');
     }
   }
 
@@ -142,6 +173,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       final tmpDir = await getTemporaryDirectory();
       final ts = DateTime.now().millisecondsSinceEpoch;
       final tempPath = p.join(tmpDir.path, 'capture_$ts.jpg');
+
       final image = await _controller!.takePicture();
       await image.saveTo(tempPath);
 
@@ -149,15 +181,22 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
       Navigator.pop(context, tempPath);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Capture failed: $e'),
-          backgroundColor: AppColors.secondaryColor1,
-        ),
-      );
+      _showErrorSnackBar('Capture failed: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _isCapturing = false);
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.secondaryColor1,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -171,6 +210,64 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Error state
+    if (_errorMessage != null && !_isInitialized) {
+      return Scaffold(
+        backgroundColor: AppColors.blackColor,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColors.secondaryColor1,
+                  size: 60,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Camera Error',
+                  style: TextStyle(
+                    color: AppColors.whiteColor,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.whiteColor.withOpacity(0.8),
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor1,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Go Back',
+                    style: TextStyle(color: AppColors.whiteColor),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Loading state
     if (!_isInitialized) {
       return Scaffold(
         backgroundColor: AppColors.blackColor,
@@ -200,7 +297,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
                 strokeWidth: 3,
               ),
               const SizedBox(height: 16),
-              Text(
+              const Text(
                 'Initializing camera...',
                 style: TextStyle(
                   color: AppColors.whiteColor,
@@ -249,51 +346,57 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
           ),
 
           // Top UI controls
-          SafeArea(
-            child: FadeTransition(
-              opacity: _uiFade,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Close button
-                    _buildControlButton(
-                      icon: Icons.close_rounded,
-                      onTap: () => Navigator.pop(context),
-                    ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: SafeArea(
+              child: FadeTransition(
+                opacity: _uiFade,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Close button
+                      _buildControlButton(
+                        icon: Icons.close_rounded,
+                        onTap: () => Navigator.pop(context),
+                      ),
 
-                    // Camera title
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.blackColor.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.primaryColor1.withOpacity(0.3),
-                          width: 1,
+                      // Camera title
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.blackColor.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: AppColors.primaryColor1.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Text(
+                          'Progress Photo',
+                          style: TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        'Progress Photo',
-                        style: TextStyle(
-                          color: AppColors.whiteColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
 
-                    // Flash toggle
-                    _buildControlButton(
-                      icon: _isFlashOn
-                          ? Icons.flash_on_rounded
-                          : Icons.flash_off_rounded,
-                      onTap: _toggleFlash,
-                      isActive: _isFlashOn,
-                    ),
-                  ],
+                      // Flash toggle (only show for back camera)
+                      _buildControlButton(
+                        icon: _isFlashOn
+                            ? Icons.flash_on_rounded
+                            : Icons.flash_off_rounded,
+                        onTap: _isFrontCamera ? null : _toggleFlash,
+                        isActive: _isFlashOn,
+                        isDisabled: _isFrontCamera,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -315,7 +418,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
                       // Gallery shortcut (placeholder)
                       _buildSecondaryButton(
                         icon: Icons.photo_library_outlined,
-                        onTap: () {}, // Add gallery navigation
+                        onTap: () => Navigator.pop(context),
                       ),
 
                       // Capture button
@@ -341,7 +444,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
                                 ],
                               ),
                               child: _isCapturing
-                                  ? Center(
+                                  ? const Center(
                                       child: SizedBox(
                                         width: 32,
                                         height: 32,
@@ -388,29 +491,34 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
 
   Widget _buildControlButton({
     required IconData icon,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
     bool isActive = false,
+    bool isDisabled = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       child: Container(
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primaryColor1.withOpacity(0.9)
-              : AppColors.blackColor.withOpacity(0.5),
+          color: isDisabled
+              ? AppColors.blackColor.withOpacity(0.3)
+              : isActive
+                  ? AppColors.primaryColor1.withOpacity(0.9)
+                  : AppColors.blackColor.withOpacity(0.5),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isActive
-                ? AppColors.primaryColor1
-                : AppColors.whiteColor.withOpacity(0.3),
+            color: isDisabled
+                ? AppColors.grayColor.withOpacity(0.3)
+                : isActive
+                    ? AppColors.primaryColor1
+                    : AppColors.whiteColor.withOpacity(0.3),
             width: 1,
           ),
         ),
         child: Icon(
           icon,
-          color: AppColors.whiteColor,
+          color: isDisabled ? AppColors.grayColor : AppColors.whiteColor,
           size: 24,
         ),
       ),
